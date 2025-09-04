@@ -34,7 +34,7 @@ public class GestorNotificacionesImpl implements GestorNotificacionesService {
         // 2. Construir el mensaje (esto podría moverse a otra clase si se vuelve complejo)
         String titulo = construirTitulo(evento);
         String cuerpo = construirCuerpo(evento);
-        if(Optional.ofNullable(usuarioNuevoAsignado).isPresent() && evento.getTipo() != TipoNotificacion.NUEVO_USUARIO_REGISTRADO) {
+        if(Optional.ofNullable(usuarioNuevoAsignado).isPresent() && (evento.getTipo() == TipoNotificacion.REASIGNACION_DEPARTAMENTO_TICKET || evento.getTipo() == TipoNotificacion.REASIGNACION_USUARIO_TICKET)) {
             notificationService.sendNotification(usuarioNuevoAsignado, ticket, titulo, cuerpo, ruta);
         }
         if (destinatarios.isEmpty()) {
@@ -65,9 +65,6 @@ public class GestorNotificacionesImpl implements GestorNotificacionesService {
     // Métodos helper para construir los mensajes de correo
     private String construirTitulo(EventoNotificacionServiceImpl evento) {
         Ticket ticket = (evento.getData() instanceof Ticket) ? (Ticket) evento.getData() : null;
-//        if (ticket != null){
-//            return null;
-//        }
         String codigo = (ticket != null) ? ticket.getCodigo() + ": " : "";
         return codigo + evento.getTipo().getTitulo();
     }
@@ -83,7 +80,7 @@ public class GestorNotificacionesImpl implements GestorNotificacionesService {
         Usuario usuario = (evento.getData() instanceof Usuario) ? (Usuario) evento.getData() : null;
 
         if (usuario != null){
-            return  "Hola "+ usuario.getNombre()+" "+usuario.getApellido()+". Por favor, revisa la plataforma para más detalles. ";
+            return  "Hola "+ usuario.getNombre()+" "+usuario.getApellido()+", su perfil ha sido actualizado. Por favor, recarga la página.";
         }
         return null;
     }
@@ -98,11 +95,11 @@ public class GestorNotificacionesImpl implements GestorNotificacionesService {
             case TICKET_NO_AUTORIZADO:
                 return String.format("%s - Ticket #%s", evento.getTipo().getTitulo(), ticket.getCodigo());
             case NUEVO_USUARIO_REGISTRADO:
-                return String.format("Nuevo Usuario: %s %s", usuario.getNombre(), usuario.getApellido());
+                return String.format("Nuevo Usuario: %s %s", usuario.getNombre()+" "+usuario.getApellido());
             case PERFIL_MODIFICADO:
-                return "Tu información de perfil ha sido actualizada";
+                return "Hola "+ usuario.getNombre()+" "+usuario.getApellido()+". Tu información de perfil ha sido actualizada, favor de revisar la plataforma.";
             case USUARIO_MODIFICADO:
-                return "Un usuario ha sido modificado";
+                return "El usuario"+ usuario.getNombre()+" "+usuario.getApellido()+"\n ha sido modificado";
             default:
                 return evento.getTipo().getTitulo();
         }

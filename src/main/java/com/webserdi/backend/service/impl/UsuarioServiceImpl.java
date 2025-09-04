@@ -293,6 +293,7 @@ public class UsuarioServiceImpl implements UsuarioService {
 
         Usuario usuarioActualizado = usuarioRepository.save(savedUsuario);
         gestorNotificacionesImpl.dispatch( new EventoNotificacionServiceImpl(TipoNotificacion.PERFIL_MODIFICADO, usuarioActualizado),null);
+        gestorNotificacionesImpl.dispatch( new EventoNotificacionServiceImpl(TipoNotificacion.USUARIO_MODIFICADO, usuarioActualizado),savedUsuario);
         logger.info("Usuario con ID: {} actualizado exitosamente.", usuarioId);
         return usuarioMapper.mapToUsuarioDto(usuarioActualizado);
     }
