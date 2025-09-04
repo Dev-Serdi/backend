@@ -11,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.annotation.SendToUser;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -19,7 +18,6 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@Controller
 public class NotificationController {
 
     private final NotificationService notificationService;
@@ -34,9 +32,9 @@ public class NotificationController {
     }
 
     @PutMapping("/api/notifications/seen/{notificationId}")
-    public TicketNotificationDto setReadedNotification(@PathVariable Long notificationId){
+    public ResponseEntity<Void> setReadedNotification(@PathVariable Long notificationId){
         notificationService.setNotificationReaded(notificationId);
-        return (TicketNotificationDto) ResponseEntity.ok();
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/api/notifications/unreaded/{userId}")
@@ -44,13 +42,20 @@ public class NotificationController {
         List<NotificationDto> notification = notificationService.getNotifications(userId);
         return ResponseEntity.ok(notification).getBody();
     }
+    @PutMapping("/api/notifications/setall/{userId}")
+    public ResponseEntity<Void> setReadedNotifications(@PathVariable Long userId){
+        notificationService.setBatchNotificationsReaded(userId);
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping("/api/notifications/all/{userId}")
     public Page<NotificationDto> getReadedNotifications (
-            @PageableDefault(size = 8, sort = "timestamp") Pageable pageable,
+            @PageableDefault(size = 8) Pageable pageable,
             @PathVariable Long userId){
         Page<NotificationDto> notification = notificationService.getAllNotifications(userId, pageable);
         return ResponseEntity.ok(notification).getBody();
     }
+
 
 
 }

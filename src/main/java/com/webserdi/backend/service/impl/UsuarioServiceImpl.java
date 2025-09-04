@@ -45,6 +45,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     private final PasswordEncoder passwordEncoder;
     private final ModuloRepository moduloRepository;
     private final NotificationService notificationService;
+    private final GestorNotificacionesImpl gestorNotificacionesImpl;
 
     // El UsuarioMapper es estático, no necesita inyección si se mantiene así.
 
@@ -91,7 +92,8 @@ public class UsuarioServiceImpl implements UsuarioService {
         Usuario savedUsuario = usuarioRepository.save(usuario);
         logger.info("Usuario creado exitosamente con ID: {}", savedUsuario.getId());
 
-        notificationService.sendUserCreatedNotification(savedUsuario);
+        gestorNotificacionesImpl.dispatch(new EventoNotificacionServiceImpl(TipoNotificacion.NUEVO_USUARIO_REGISTRADO, savedUsuario),null);
+//        notificationService.sendUserCreatedNotification(savedUsuario);
 
         return usuarioMapper.mapToUsuarioDto(savedUsuario);
     }
@@ -263,6 +265,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Override
     @Transactional
     public UsuarioDto updateUsuario(Long usuarioId, UsuarioDto usuarioDto) {
+
         logger.info("Intentando actualizar usuario con ID: {}", usuarioId);
         validateUsuarioDtoForUpdate(usuarioDto);
 
@@ -288,9 +291,10 @@ public class UsuarioServiceImpl implements UsuarioService {
 
 
         // Actualizar relaciones
-        setUsuarioRelationships(savedUsuario, usuarioDto); // Reutilizar método
+        setUsuarioRelationships(savedUsuario, usuarioDto); // Reutilizar metodo
 
         Usuario usuarioActualizado = usuarioRepository.save(savedUsuario);
+        gestorNotificacionesImpl.dispatch( new EventoNotificacionServiceImpl(TipoNotificacion.PERFIL_MODIFICADO, usuarioActualizado),null);
         logger.info("Usuario con ID: {} actualizado exitosamente.", usuarioId);
         return usuarioMapper.mapToUsuarioDto(usuarioActualizado);
     }
@@ -366,7 +370,7 @@ public class UsuarioServiceImpl implements UsuarioService {
         }
 
         // Añadir permisos de los roles del usuario
-        // Asumiendo que la entidad Rol tiene un método getPermisos() que devuelve Set<Permiso>
+        // Asumiendo que la entidad Rol tiene un metodo getPermisos() que devuelve Set<Permiso>
         // y que los roles y sus permisos se cargan (EAGER o se obtienen aquí)
         if (!CollectionUtils.isEmpty(usuario.getRoles())) {
             for (Rol rol : usuario.getRoles()) {
@@ -382,7 +386,7 @@ public class UsuarioServiceImpl implements UsuarioService {
         }
 
         return permisosDelUsuario.stream()
-                .map(PermisoMapper::toDto) // Asumiendo que PermisoMapper tiene un método estático toDto
+                .map(PermisoMapper::toDto) // Asumiendo que PermisoMapper tiene un metodo estático toDto
                 .distinct() // Aunque el Set ya maneja duplicados de entidades, por si acaso en el DTO.
                 .collect(Collectors.toList());
     }

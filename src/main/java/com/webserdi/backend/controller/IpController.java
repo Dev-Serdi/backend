@@ -6,7 +6,9 @@ import com.webserdi.backend.service.IpService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.SortDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -41,9 +43,9 @@ public class IpController {
 
     @GetMapping
     public ResponseEntity<Page<IpDto>> getAllIps(
-            @PageableDefault(size = 8) Pageable pageable,
-            @RequestParam(required = false) String search,
-            @RequestParam(required = false) String searchTerm) {
+            @PageableDefault(size = 8) @SortDefault.SortDefaults({
+                    @SortDefault(sort = "fechaRegistro", direction = Sort.Direction.DESC),
+            })Pageable pageable) {
         Page<IpDto> ips = ipService.obtenerTodasLasIps(pageable);
         return ResponseEntity.ok(ips);
     }

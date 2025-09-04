@@ -73,4 +73,10 @@ public class Usuario {
     @Column(name="fecha_creacion", updatable = false)
     private LocalDateTime fechaCreacion;
 
+    @ElementCollection(fetch = FetchType.EAGER) // EAGER para tener las preferencias siempre disponibles
+    @CollectionTable(name = "usuario_notificaciones_activas", joinColumns = @JoinColumn(name = "usuario_id"))
+    @Enumerated(EnumType.STRING) // Guarda el nombre del enum ("NUEVO_TICKET_ASIGNADO") en la BD, no el índice numérico
+    @Column(name = "tipo_notificacion")
+    private Set<TipoNotificacion> notificacionesActivas = new HashSet<>();
+
 }

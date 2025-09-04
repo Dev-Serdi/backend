@@ -19,6 +19,7 @@ public class IpMapper {
         if (ip.getUsuario() != null) {
             dto.setUsuarioEmail(ip.getUsuario().getEmail());
             dto.setNombreUsuario(ip.getUsuario().getNombre() + " " + ip.getUsuario().getApellido());
+            dto.setUsuarioId(ip.getUsuario().getId());
         }
         return dto;
     }

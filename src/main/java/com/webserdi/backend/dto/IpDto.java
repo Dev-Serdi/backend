@@ -9,5 +9,6 @@ public class IpDto {
     private String ip;
     private String usuarioEmail;
     private String nombreUsuario; // Opcional: para mostrar el nombre del usuario
+    private Long usuarioId; // Opcional: para mostrar el ID del usuario
     private LocalDateTime fechaRegistro;
 }

@@ -30,7 +30,7 @@ public class JwtTokenProvider {
     @Value("${app-jwt-expiration-milliseconds}")
     private long jwtExpirationMs; // Fixed type to long
 
-    private final Set<String> blacklistedTokens = new HashSet<>();
+//    private final Set<String> blacklistedTokens = new HashSet<>();
 
     private Key key() {
         // Para un `jwtSecret` que esta en Base64-encoded:
@@ -72,10 +72,10 @@ public class JwtTokenProvider {
     // Validate Jwt token
     public boolean validateToken(String token){
         // CORRECCIÓN: Primero, verificar si el token está en la lista negra.
-        if (blacklistedTokens.contains(token)) {
-            logger.warn("Se intentó usar un token que está en la lista negra (logout).");
-            return false;
-        }
+//        if (blacklistedTokens.contains(token)) {
+//            logger.warn("Se intentó usar un token que está en la lista negra (logout).");
+//            return false;
+//        }
 
         try{
             Jwts.parserBuilder()
@@ -97,7 +97,7 @@ public class JwtTokenProvider {
         return false;
     }
 
-    public void invalidateToken(String token) {
-        blacklistedTokens.add(token);
-    }
+//    public void invalidateToken(String token) {
+//        blacklistedTokens.add(token);
+//    }
 }

@@ -84,9 +84,6 @@ public class IpServiceImplementation implements IpService {
     public Page<IpDto> obtenerTodasLasIps(Pageable pageable) {
         logger.debug("Obteniendo todas las IPs registradas.");
         Page<Ip> todasLasIps = ipRepository.findAll(pageable);
-        // Considerar paginación aquí si la lista puede ser muy grande
-        // Page<Ip> ipPage = ipRepository.findAll(pageable);
-        // return ipPage.map(IpMapper::toDto);
         return todasLasIps.map(IpMapper::toDto);
     }
 }

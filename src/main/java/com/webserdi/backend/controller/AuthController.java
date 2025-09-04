@@ -61,7 +61,7 @@ public class AuthController {
             String token = extractTokenFromHeader(authorizationHeader);
 
             if (token != null) {
-                jwtTokenProvider.invalidateToken(token);
+//                jwtTokenProvider.invalidateToken(token);
                 // Limpiar el contexto de seguridad para el hilo actual
                 SecurityContextHolder.clearContext();
                 return ResponseEntity.ok(Collections.singletonMap("mensaje", "Logout exitoso"));

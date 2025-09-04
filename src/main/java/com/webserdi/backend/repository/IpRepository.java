@@ -13,4 +13,5 @@ import java.util.Optional;
 public interface IpRepository extends JpaRepository<Ip, Long> {
     // Métodos de búsqueda personalizados si los necesitas, por ejemplo:
     Page<Ip> findByUsuarioIdOrderByFechaRegistroDesc(Long usuarioId, Pageable pageable);
+
 }

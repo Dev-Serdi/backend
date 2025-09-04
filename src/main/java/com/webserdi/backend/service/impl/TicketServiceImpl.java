@@ -54,6 +54,8 @@ public class TicketServiceImpl implements TicketService {
     private final NotificationService notificationService;
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final EntityManager entityManager;
+    private final GestorNotificacionesImpl gestorNotificaciones;
+
 
     @Override
     @Transactional(readOnly = true)
@@ -91,7 +93,6 @@ public class TicketServiceImpl implements TicketService {
             logger.error("Error generando código para el nuevo ticket", e);
             throw new BusinessException("Error generando código del ticket: " + e.getMessage());
         }
-
         setTicketRelationships(ticket, dto);
 
         ZonedDateTime utcMinus7Time = ZonedDateTime.now(ZoneOffset.UTC)
@@ -105,7 +106,8 @@ public class TicketServiceImpl implements TicketService {
         logger.info("Ticket creado exitosamente con ID: {} y Código: {}", savedTicket.getId(), savedTicket.getCodigo());
 
         logger.info("Enviando notificación estándar para el ticket {}", savedTicket.getCodigo());
-        notificationService.sendTicketCreationNotification(savedTicket);
+//        notificationService.sendTicketCreationNotification(savedTicket);
+        gestorNotificaciones.dispatch(new EventoNotificacionServiceImpl(TipoNotificacion.NUEVO_TICKET_ASIGNADO, savedTicket),null);
 
         if (savedTicket.getUsuarioAsignado() != null) {
             logger.info("Enviando notificación WebSocket al usuario asignado: {}", savedTicket.getUsuarioAsignado().getEmail());
@@ -175,6 +177,9 @@ public class TicketServiceImpl implements TicketService {
         }
         ticket.setIncidencia(incidencia);
         if (ticket.getUsuarioCreador().getUbicacion() != null) ticket.setUbicacion(ticket.getUsuarioCreador().getUbicacion());
+
+        ticket.setEstado(estadoRepository.findById(dto.getEstado())
+                .orElseThrow());
 
         ticket.setPrioridad(prioridadRepository.findById(dto.getPrioridad())
                 .orElseThrow(() -> new ResourceNotFoundException("Prioridad no encontrada con ID: " + dto.getPrioridad())));
@@ -275,8 +280,7 @@ public class TicketServiceImpl implements TicketService {
         }
 
         logger.info("Transmitiendo notificacion al usuario asignado");
-        notificationService.sendTicketStatusChangedNotification(updatedTicket);
-
+        gestorNotificaciones.dispatch(new EventoNotificacionServiceImpl(TipoNotificacion.CAMBIO_ESTADO_TICKET, updatedTicket),null);
         ticketRepository.save(updatedTicket);
         return ticketMapper.toDto(updatedTicket);
     }
@@ -302,8 +306,7 @@ public class TicketServiceImpl implements TicketService {
         ticket.setUsuarioCerrar(usuarioResponsable);
 
         ticketRepository.save(ticket);
-
-        notificationService.sendTicketStatusChangedNotification(ticket);
+        gestorNotificaciones.dispatch(new EventoNotificacionServiceImpl(TipoNotificacion.TICKET_NO_AUTORIZADO, ticket),null);
         logger.info("Ticket con ID {} marcado como NO AUTORIZADO exitosamente.", ticketId);
     }
 
@@ -357,9 +360,13 @@ public class TicketServiceImpl implements TicketService {
     public TicketDto reassignUser(Long ticketId, Long usuarioId) {
         Ticket ticket = ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new ResourceNotFoundException("Ticket no encontrado con ID: " + ticketId));
+        Usuario nuevoUsuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado: " + usuarioId));
         if(Objects.equals(ticket.getUsuarioAsignado().getId(), usuarioId)) return ticketMapper.toDto(ticket);
+        gestorNotificaciones.dispatch(new EventoNotificacionServiceImpl(TipoNotificacion.REASIGNACION_USUARIO_TICKET, ticket), nuevoUsuario);
         ticket.setUsuarioAsignado(usuarioRepository.findById(usuarioId).orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con ID: " + usuarioId)));
         ticket.setFechaActualizacion(getCurrentTime());
+//        notificationService.sendReassignedDepartment(ticket, nuevoUsuario);//Le mandamos el ticket sin modificar y seguidamente el correo del nuevo usuario para notificar a los 3 usuarios que se reasignó el ticket
         ticketRepository.save(ticket);
         return ticketMapper.toDto(ticket);
     }
@@ -368,11 +375,14 @@ public class TicketServiceImpl implements TicketService {
     public TicketDto reassignDepartment(Long ticketId, Long usuarioId, Long incidenciaId, Long departamentoId) {
         Ticket ticket = ticketRepository.findById(ticketId)
                 .orElseThrow(()-> new ResourceNotFoundException("Ticket no encontrado"));
-        ticket.setUsuarioAsignado(usuarioRepository.findById(usuarioId).orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con ID: " + usuarioId)));
+        Usuario nuevoUsuario = usuarioRepository.findById(usuarioId).orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con ID: " + usuarioId));
         ticket.setIncidencia(incidenciaRepository.findById(incidenciaId).orElseThrow(() -> new ResourceNotFoundException("Incidencia no encontrada")));
         ticket.setDepartamento(departamentoRepository.findById(departamentoId).orElseThrow(() -> new ResourceNotFoundException("Departamento no encontrado")));
+        notificationService.sendReassignedDepartment(ticket, nuevoUsuario);//Le mandamos el ticket sin modificar y seguidamente el correo del nuevo usuario para notificar a los 3 usuarios que se reasignó el ticket
         ticket.setFechaActualizacion(getCurrentTime());
+        ticket.setUsuarioAsignado(nuevoUsuario);
         ticketRepository.save(ticket);
+        gestorNotificaciones.dispatch(new EventoNotificacionServiceImpl(TipoNotificacion.REASIGNACION_DEPARTAMENTO_TICKET, ticket), null);
         return ticketMapper.toDto(ticket);
     }
 
@@ -388,6 +398,7 @@ public class TicketServiceImpl implements TicketService {
 
     private LocalDateTime getCurrentTime() {
         return ZonedDateTime.now(ZoneOffset.UTC)
+
                 .withZoneSameInstant(ZoneOffset.ofHours(-7))
                 .toLocalDateTime();
     }

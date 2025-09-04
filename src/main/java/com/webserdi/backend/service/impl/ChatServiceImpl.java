@@ -50,6 +50,7 @@ public class ChatServiceImpl implements ChatService {
     private final FileStorageService fileStorageService;
     private final SimpMessagingTemplate messagingTemplate;
     private final NotificationService notificationService;
+    private final GestorNotificacionesImpl gestorNotificaciones;
 
     @Override
     @Transactional(readOnly = true)
@@ -97,7 +98,7 @@ public class ChatServiceImpl implements ChatService {
         if (!hasContent && !hasFile) {
             throw new ResourceNotFoundException("El mensaje debe tener contenido o un archivo adjunto.");
         }
-        if (!ticket.getIsAttended())
+        if (!ticket.getIsAttended() && !sender.getId().equals(ticket.getUsuarioCreador().getId()))
         {
             ticket.setIsAttended(true);
             ticket.setFechaRespuesta(now);
@@ -137,7 +138,9 @@ public class ChatServiceImpl implements ChatService {
         logger.info("Transmitiendo mensaje (desde REST) a STOMP topic: {}", destination);
         messagingTemplate.convertAndSend(destination, messageDtoToSend);
 
-        notificationService.sendTicketMessageNotification(ticket, savedMessage);
+//        notificationService.sendTicketMessageNotification(
+//        , savedMessage);
+        gestorNotificaciones.dispatch(new EventoNotificacionServiceImpl(TipoNotificacion.NUEVO_MENSAJE_EN_TICKET, ticket),null);
 
         return messageDtoToSend;
     }

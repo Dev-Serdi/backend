@@ -30,62 +30,47 @@ public class NotificationServiceImpl implements NotificationService {
     private final UsuarioRepository usuarioRepository;
     private final EmailService emailService;
 
-
-    @Override
-    @Transactional
-    public void sendTicketCreationNotification(Ticket ticket) {
-        // Notificar solo al usuario asignado. El creador ya sabe que lo creó.
-        Optional.ofNullable(ticket.getUsuarioAsignado()).ifPresent(recipient -> {
-            String title = "Nuevo ticket asignado: " + ticket.getCodigo();
-            String body = "Creado por: " + getFullName(ticket.getUsuarioCreador());
-            createAndPersistNotification(new HashSet<>(Collections.singletonList(recipient)), ticket, title, body,null);
-            emailService.sendEmailToUser(ticket.getUsuarioAsignado().getEmail(), title, body);
-            emailService.sendEmailToAdmins(title,body);
-        });
-    }
-
     @Override
     @Transactional
     public void sendTicketMessageNotification(Ticket ticket, ChatMessage message) {
-        Set<Usuario> recipients = new HashSet<>();
+//        Set<Usuario> recipients = new HashSet<>();
 
         // Añadir al creador y al usuario asignado como posibles destinatarios
-        Optional.ofNullable(ticket.getUsuarioCreador()).ifPresent(recipients::add);
-        Optional.ofNullable(ticket.getUsuarioAsignado()).ifPresent(recipients::add);
+//            Optional.ofNullable(ticket.getUsuarioAsignado()).ifPresent(recipients::add);
+//        Optional.ofNullable(ticket.getUsuarioCreador()).ifPresent(recipients::add);
+//        if (!ticket.getUsuarioCreador().getId().equals(message.getSender().getId())) {
+//        }
+        Usuario recipient = usuarioRepository.findById(ticket.getUsuarioAsignado().getId()).orElseThrow();
 
         // Quien envía el mensaje no debe recibir una notificación de su propio mensaje.
-        Optional.ofNullable(message.getSender()).ifPresent(recipients::remove);
-
-        if (recipients.isEmpty()) {
-            logger.info("No hay destinatarios para la notificación de nuevo mensaje en el ticket {}", ticket.getCodigo());
-            return;
-        }
-
+//        Optional.ofNullable(message.getSender()).ifPresent(recipients::remove);
+//        if (recipients.isEmpty()) {
+//            logger.info("No hay destinatarios para la notificación de nuevo mensaje en el ticket {}", ticket.getCodigo());
+//            return;
+//        }
+        if (recipient.getId().equals(ticket.getUsuarioAsignado().getId())) return;
         String title = "Nuevo comentario en ticket: " + ticket.getCodigo();
         String body = "De: " + getFullName(message.getSender());
-        emailService.sendEmailToUser(ticket.getUsuarioAsignado().getEmail(), title, body);
-        createAndPersistNotification(recipients, ticket, title, body,null);
+//        emailService.sendEmailToUser(ticket.getUsuarioAsignado().getEmail(), title, body);
+        createAndPersistNotification(recipient, ticket, title, body,null);
     }
 
     @Override
-    @Transactional
-    public void sendTicketStatusChangedNotification(Ticket ticket) {
+    public void sendReassignedDepartment(Ticket ticket, Usuario usuario) {
         Set<Usuario> recipients = new HashSet<>();
-
-        // Notificar tanto al creador como al usuario asignado sobre el cambio de estado.
-        Optional.ofNullable(ticket.getUsuarioCreador()).ifPresent(recipients::add);
         Optional.ofNullable(ticket.getUsuarioAsignado()).ifPresent(recipients::add);
+        Optional.ofNullable(ticket.getUsuarioCreador()).ifPresent(recipients::add);
+        recipients.add(usuario);
 
-        if (recipients.isEmpty()) {
-            logger.info("No hay destinatarios para la notificación de cambio de estado en el ticket {}", ticket.getCodigo());
-            return;
+        String title = "Se reasignó el ticket: "+ticket.getCodigo();
+        String body = "El agente asignado es: "+ usuario.getNombre()+" "+usuario.getApellido()+"\nFavor de revisar la plataforma.";
+
+        for (Usuario recipient:recipients){
+            createAndPersistNotification(recipient, ticket, title, body,null);
         }
-
-        String title = "Estado del ticket actualizado: " + ticket.getCodigo();
-        String body = "Se movió a: " + ticket.getEstado().getNombre();
-        emailService.sendEmailToMultipleUsers(recipients, title, body);
-        createAndPersistNotification(recipients, ticket, title, body,null);
+//        createAndPersistNotification(usuario, ticket, title, body,null);
     }
+
     private Set<Usuario> getAdministradores() {
         return usuarioRepository.findByRoles_Nombre("ROLE_ADMIN"); // Ajusta según tu lógica de roles
     }
@@ -93,17 +78,17 @@ public class NotificationServiceImpl implements NotificationService {
      * Método centralizado para crear, persistir y enviar una notificación.
      * Esto asegura que una notificación siempre se guarde en la BD antes de ser enviada por WebSocket.
      *
-     * @param recipients Los usuarios que recibirán la notificación.
+     * @param recipient Los usuarios que recibirán la notificación.
      * @param ticket    El ticket relacionado con la notificación.
      * @param title     El título/mensaje principal de la notificación.
-     * @param body      El mensaje/cuerpo secundario de la notificación.
+     * @param body      El mensaje/body secundario de la notificación.
      */
-    private void createAndPersistNotification(Set<Usuario> recipients, Ticket ticket, String title, String body, String route) {
-        recipients.addAll(getAdministradores());
-        for (Usuario recipient : recipients) {
+    private void createAndPersistNotification(Usuario recipient, Ticket ticket, String title, String body, String route) {
+//        recipients.addAll(getAdministradores());
+//        for (Usuario recipient : recipients) {
             if (recipient == null || recipient.getEmail() == null) {
                 logger.warn("Se intentó enviar una notificación a un destinatario nulo o sin email");
-                continue;
+                return;
             }
             Notification notification = new Notification();
             notification.setUser(recipient);
@@ -128,7 +113,7 @@ public class NotificationServiceImpl implements NotificationService {
 
             String destination = "/user/" + recipient.getEmail() + "/notifications";
             messagingTemplate.convertAndSend(destination, notificationDto);
-        }
+//        }
     }
 
     /**
@@ -143,7 +128,7 @@ public class NotificationServiceImpl implements NotificationService {
 
         // Esta es la forma más eficiente y segura.
         // Llama directamente al método del repositorio que construye los DTOs.
-        List<NotificationDto> notifications = notificationRepository.findNotificationsByUserId(userId);
+        List<NotificationDto> notifications = notificationRepository.findNotificationsByUserIdOrderByTimestampDesc(userId);
 
         logger.info("Se encontraron y mapearon {} notificaciones para el usuario con ID: {}", notifications.size(), userId);
 
@@ -152,7 +137,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public Page<NotificationDto> getAllNotifications(Long userId, Pageable pageable) {
-        Page<Notification> notifications = notificationRepository.findAllByUserId(userId, pageable);
+        Page<Notification> notifications = notificationRepository.findAllByUserIdOrderByTimestampDesc(userId, pageable);
         return notifications.map(NotificationDto::new);
     }
 
@@ -164,14 +149,16 @@ public class NotificationServiceImpl implements NotificationService {
             notificationRepository.save(n);
         });
     }
+
     @Override
-    public void sendUserCreatedNotification(Usuario usuario) {
-        String title = "Nuevo usuario registrado";
-        String body = "Se ha registrado: " + getFullName(usuario)+ ", Favor de revisar su información.";
-        String route = "/admin/edit-user/" + usuario.getId();
-        Set<Usuario> admins = new HashSet<>(getAdministradores());
-        emailService.sendEmailToAdmins(title, body);
-        createAndPersistNotification(admins, null, title, body, route);
+    @Transactional
+    public void setBatchNotificationsReaded(Long userId) {
+        notificationRepository.markAsReadByIds(userId);
+    }
+
+    @Override
+    public void sendNotification(Usuario recipient, Ticket ticket, String title, String body, String route) {
+        createAndPersistNotification(recipient, ticket, title, body, route);
     }
 
     // Helper para obtener el nombre completo de forma segura
@@ -189,4 +176,32 @@ public class NotificationServiceImpl implements NotificationService {
                 .withZoneSameInstant(ZoneOffset.ofHours(-7))
                 .toLocalDateTime();
     }
+//    @Override
+//    public void sendUserCreatedNotification(Usuario usuario) {
+//        String title = "Nuevo usuario registrado";
+//        String body = "Se ha registrado: " + getFullName(usuario)+ ", Favor de revisar su información.";
+//        String route = "/admin/edit-user/" + usuario.getId();
+//        Set<Usuario> admins = new HashSet<>(getAdministradores());
+////        emailService.sendEmailToAdmins(title, body);
+//        createAndPersistNotification(admins, null, title, body, route);
+//    }
+//    @Override
+//    @Transactional
+//    public void sendTicketStatusChangedNotification(Ticket ticket) {
+//        Set<Usuario> recipients = new HashSet<>();
+//
+//        // Notificar tanto al creador como al usuario asignado sobre el cambio de estado.
+//        Optional.ofNullable(ticket.getUsuarioCreador()).ifPresent(recipients::add);
+//        Optional.ofNullable(ticket.getUsuarioAsignado()).ifPresent(recipients::add);
+//
+//        if (recipients.isEmpty()) {
+//            logger.info("No hay destinatarios para la notificación de cambio de estado en el ticket {}", ticket.getCodigo());
+//            return;
+//        }
+//
+//        String title = "Estado del ticket actualizado: " + ticket.getCodigo();
+//        String body = "Se movió a: " + ticket.getEstado().getNombre();
+////        emailService.sendEmailToMultipleUsers(recipients, title, body);
+//        createAndPersistNotification(recipients, ticket, title, body,null);
+//    }
 }
