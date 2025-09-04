@@ -79,6 +79,15 @@ public class GestorNotificacionesImpl implements GestorNotificacionesService {
         }
         Usuario usuario = (evento.getData() instanceof Usuario) ? (Usuario) evento.getData() : null;
 
+        switch (evento.getTipo()){
+            case PERFIL_MODIFICADO :
+                return "Hola "+ usuario.getNombre()+" "+usuario.getApellido()+", tu perfil ha sido actualizado. Por favor, recarga la página.";
+            case USUARIO_MODIFICADO:
+                return "El perfil de: "+ usuario.getNombre()+" "+usuario.getApellido()+", ha sido actualizado por un administrador.";
+            case NUEVO_USUARIO_REGISTRADO:
+                return "Se ha registrado "+usuario.getNombre()+" "+usuario.getApellido()+", favor de revisar su informacion.";
+        }
+
         if (usuario != null && evento.getTipo() == TipoNotificacion.PERFIL_MODIFICADO){
             return  "Hola "+ usuario.getNombre()+" "+usuario.getApellido()+", su perfil ha sido actualizado. Por favor, recarga la página.";
         }else if(usuario != null)
@@ -100,7 +109,7 @@ public class GestorNotificacionesImpl implements GestorNotificacionesService {
             case PERFIL_MODIFICADO:
                 return "Hola "+ usuario.getNombre()+" "+usuario.getApellido()+". Tu información de perfil ha sido actualizada, favor de revisar la plataforma.";
             case USUARIO_MODIFICADO:
-                return "El usuario"+ usuario.getNombre()+" "+usuario.getApellido()+"\n ha sido modificado";
+                return "El usuario "+ usuario.getNombre()+" "+usuario.getApellido()+"\n ha sido modificado";
             default:
                 return evento.getTipo().getTitulo();
         }
