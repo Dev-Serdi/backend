@@ -88,10 +88,6 @@ public class GestorNotificacionesImpl implements GestorNotificacionesService {
                 return "Se ha registrado "+usuario.getNombre()+" "+usuario.getApellido()+", favor de revisar su informacion.";
         }
 
-        if (usuario != null && evento.getTipo() == TipoNotificacion.PERFIL_MODIFICADO){
-            return  "Hola "+ usuario.getNombre()+" "+usuario.getApellido()+", su perfil ha sido actualizado. Por favor, recarga la página.";
-        }else if(usuario != null)
-            return  "Hola, el perfil de: "+ usuario.getNombre()+" "+usuario.getApellido()+", ha sido actualizado por un administrador.";
         return null;
     }
     private String construirAsunto(EventoNotificacionServiceImpl evento) {
