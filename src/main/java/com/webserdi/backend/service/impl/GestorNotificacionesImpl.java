@@ -83,7 +83,7 @@ public class GestorNotificacionesImpl implements GestorNotificacionesService {
         Usuario usuario = (evento.getData() instanceof Usuario) ? (Usuario) evento.getData() : null;
 
         if (usuario != null){
-            return  evento.getTipo().getTitulo() + ". Por favor, revisa la plataforma para más detalles.\n Nombre: "+ usuario.getNombre()+" "+usuario.getApellido();
+            return  "Hola "+ usuario.getNombre()+" "+usuario.getApellido()+". Por favor, revisa la plataforma para más detalles. ";
         }
         return null;
     }
@@ -101,6 +101,8 @@ public class GestorNotificacionesImpl implements GestorNotificacionesService {
                 return String.format("Nuevo Usuario: %s %s", usuario.getNombre(), usuario.getApellido());
             case PERFIL_MODIFICADO:
                 return "Tu información de perfil ha sido actualizada";
+            case USUARIO_MODIFICADO:
+                return "Un usuario ha sido modificado";
             default:
                 return evento.getTipo().getTitulo();
         }

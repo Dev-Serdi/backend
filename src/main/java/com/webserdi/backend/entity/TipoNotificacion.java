@@ -16,7 +16,7 @@ public enum TipoNotificacion {
     NUEVO_TICKET_CREADO("Nuevo Ticket Creado", "Se ha creado un nuevo ticket en el sistema.", true),
     FECHA_COMPROMISO_ASIGNADA("Fecha de Compromiso", "Se ha asignado una fecha de compromiso a un ticket",true),
     // --- Notificaciones de Sistema (Basadas en Roles, no configurables) ---
-    NUEVO_USUARIO_REGISTRADO("Nuevo Usuario Registrado", "Admin: Un nuevo usuario se ha registrado en el sistema.", false),//lis
+    NUEVO_USUARIO_REGISTRADO("Nuevo Usuario Registrado", "Admin: Un nuevo usuario se ha registrado en el sistema.", false),
     USUARIO_MODIFICADO("Usuario Modificado", "Admin: Se ha modificado un usuario.", false);
 
     private final String titulo;

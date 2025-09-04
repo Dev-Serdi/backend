@@ -63,6 +63,8 @@ public class ResolvedorDestinatariosServiceImpl implements ResolvedorDestinatari
                 if (usuarioData != null) {
                     destinatarios.add(usuarioData); // El propio usuario afectado
                 }
+                break;
+            case USUARIO_MODIFICADO:
                 destinatarios.addAll(getAdmins()); // Y los admins
                 break;
             case NUEVO_USUARIO_REGISTRADO:
@@ -80,10 +82,7 @@ public class ResolvedorDestinatariosServiceImpl implements ResolvedorDestinatari
         }
         return destinatarios;
     }
-    public Set<Usuario> resolverNuevoMensaje(){
 
-        return null;
-    }
 
     private Set<Usuario> getAdmins() {
         return usuarioRepository.findByRoles_Nombre("ROLE_ADMIN");
