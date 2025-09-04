@@ -28,7 +28,7 @@ public class GestorNotificacionesImpl implements GestorNotificacionesService {
         Set<Usuario> destinatarios = resolvedorDestinatarios.resolver(evento);
         // 1. Obtener la lista de destinatarios según las reglas de negocio
         Ticket ticket = (evento.getData() instanceof Ticket) ? (Ticket) evento.getData() : null;
-        String ruta = (ticket != null) ? "/helpdesk/task/" + ticket.getId() : "/perfil/"+ usuarioNuevoAsignado.getId();
+        String ruta = (ticket != null) ? "/helpdesk/task/" + ticket.getId() : (usuarioNuevoAsignado!= null)? "/perfil/"+ usuarioNuevoAsignado.getId(): "/perfil";
 
         // 2. Construir el mensaje (esto podría moverse a otra clase si se vuelve complejo)
         String titulo = construirTitulo(evento);
