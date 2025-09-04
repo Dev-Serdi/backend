@@ -1,6 +1,5 @@
 package com.webserdi.backend.service.impl;
 
-import com.webserdi.backend.entity.TipoNotificacion;
 import com.webserdi.backend.entity.Usuario;
 import com.webserdi.backend.service.ResolvedorDestinatariosService;
 import org.springframework.stereotype.Service;

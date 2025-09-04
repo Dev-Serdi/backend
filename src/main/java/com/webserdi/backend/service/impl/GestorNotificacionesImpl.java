@@ -1,6 +1,7 @@
 package com.webserdi.backend.service.impl;
 
 import com.webserdi.backend.entity.Ticket;
+import com.webserdi.backend.entity.TipoNotificacion;
 import com.webserdi.backend.entity.Usuario;
 import com.webserdi.backend.service.EmailService;
 import com.webserdi.backend.service.GestorNotificacionesService;
@@ -33,7 +34,7 @@ public class GestorNotificacionesImpl implements GestorNotificacionesService {
         // 2. Construir el mensaje (esto podría moverse a otra clase si se vuelve complejo)
         String titulo = construirTitulo(evento);
         String cuerpo = construirCuerpo(evento);
-        if(Optional.ofNullable(usuarioNuevoAsignado).isPresent()) {
+        if(Optional.ofNullable(usuarioNuevoAsignado).isPresent() && evento.getTipo() != TipoNotificacion.NUEVO_USUARIO_REGISTRADO) {
             notificationService.sendNotification(usuarioNuevoAsignado, ticket, titulo, cuerpo, ruta);
         }
         if (destinatarios.isEmpty()) {
