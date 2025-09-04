@@ -139,10 +139,20 @@ public class GestorNotificacionesImpl implements GestorNotificacionesService {
                 ctaTexto = "Revisar Ticket";
                 ctaUrl += "/helpdesk/task/" + ticket.getId();
                 break;
+            case FECHA_COMPROMISO_ASIGNADA:
+                mensaje = String.format(
+                        "<p>Hola <strong>%s</strong>,</p>" +
+                                "<p>Se ha asignado fecha de compromiso al ticket <b>#%s</b></p>" +
+                                "<h2 style='color: #0056b3;'>%s</h2>",
+                        destinatario.getNombre(), ticket.getCodigo(), ticket.getFechaCompromiso());
+                ctaTexto = "Revisar Ticket";
+                ctaUrl += "/helpdesk/task/" + ticket.getId();
+                break;
             case NUEVO_MENSAJE_EN_TICKET:
                 mensaje = String.format(
                         "<p>Hola <strong>%s</strong>,</p>" +
-                                "<p>Se ha añadido un nuevo comentario en el ticket <b>#%s</b> (%s).</p>",
+                                "<p>Se ha añadido un nuevo comentario en el ticket <b>#%s</b>.</p>"+
+                                "<p>Asunto: %s</p>",
                         destinatario.getNombre(), ticket.getCodigo(), ticket.getTema());
                 ctaTexto = "Leer Comentario";
                 ctaUrl += "/helpdesk/task/" + ticket.getId();

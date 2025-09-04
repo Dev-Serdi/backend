@@ -40,6 +40,7 @@ public class ResolvedorDestinatariosServiceImpl implements ResolvedorDestinatari
                 destinatarios.addAll(getAdmins());
                 break;
 
+            case FECHA_COMPROMISO_ASIGNADA:
             case CAMBIO_ESTADO_TICKET:
             case TICKET_MODIFICADO:
             case REASIGNACION_USUARIO_TICKET:
@@ -79,6 +80,10 @@ public class ResolvedorDestinatariosServiceImpl implements ResolvedorDestinatari
                 break;
         }
         return destinatarios;
+    }
+    public Set<Usuario> resolverNuevoMensaje(){
+
+        return null;
     }
 
     private Set<Usuario> getAdmins() {

@@ -93,7 +93,6 @@ public class UsuarioServiceImpl implements UsuarioService {
         logger.info("Usuario creado exitosamente con ID: {}", savedUsuario.getId());
 
         gestorNotificacionesImpl.dispatch(new EventoNotificacionServiceImpl(TipoNotificacion.NUEVO_USUARIO_REGISTRADO, savedUsuario),null);
-//        notificationService.sendUserCreatedNotification(savedUsuario);
 
         return usuarioMapper.mapToUsuarioDto(savedUsuario);
     }
@@ -313,13 +312,6 @@ public class UsuarioServiceImpl implements UsuarioService {
         if (!StringUtils.hasText(dto.getApellido())) {
             throw new ResourceNotFoundException("El apellido del usuario es obligatorio.");
         }
-        // Email es opcional en la actualización, si no viene, no se cambia.
-        // Password es opcional, si no viene, no se cambia.
-        // Roles son opcionales, si no vienen, no se cambian (o se limpian según la lógica de negocio).
-        // Para este ejemplo, si vienen roles vacíos, se limpian los roles.
-        // if (dto.getRoles() == null) { // Si es null, no se tocan. Si es vacío, se limpian.
-        //     throw new ResourceNotFoundException("La lista de roles no puede ser nula (puede ser vacía para quitar todos los roles).");
-        // }
     }
 
     /**
@@ -391,44 +383,6 @@ public class UsuarioServiceImpl implements UsuarioService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Actualiza el email de un usuario.
-     *
-     * @param usuarioId ID del usuario.
-     * @param newEmail Nuevo email.
-     * @throws ResourceNotFoundException Si el usuario no existe.
-     * @throws DuplicateEmailException Si el nuevo email ya está en uso.
-     * @throws ResourceNotFoundException Si el nuevo email es inválido.
-     */
-    @Override
-    @Transactional
-    public void updateUsuarioEmail(Long usuarioId, String newEmail) {
-        logger.info("Intentando actualizar email para usuario ID: {} al nuevo email: {}", usuarioId, newEmail);
-        if (!StringUtils.hasText(newEmail)) {
-            throw new ResourceNotFoundException("El nuevo email no puede estar vacío.");
-        }
-        // Aquí se podría añadir validación de formato de email
-
-        Usuario usuario = usuarioRepository.findById(usuarioId)
-                .orElseThrow(() -> {
-                    logger.warn("Usuario no encontrado para actualizar email con ID: {}", usuarioId);
-                    return new ResourceNotFoundException("Usuario no encontrado con ID: " + usuarioId);
-                });
-
-        if (usuario.getEmail().equals(newEmail)) {
-            logger.info("El nuevo email es el mismo que el actual para usuario ID: {}. No se requiere actualización.", usuarioId);
-            return; // No hay cambios
-        }
-
-        if (usuarioRepository.existsByEmailAndIdNot(newEmail, usuarioId)) {
-            logger.warn("Intento de actualizar a email duplicado: {} para usuario ID: {}", newEmail, usuarioId);
-            throw new DuplicateEmailException("El email '" + newEmail + "' ya está en uso por otro usuario.");
-        }
-
-        usuario.setEmail(newEmail);
-        usuarioRepository.save(usuario);
-        logger.info("Email actualizado exitosamente para usuario ID: {}", usuarioId);
-    }
 
     /**
      * Obtiene los nombres de los roles de un usuario por su email.

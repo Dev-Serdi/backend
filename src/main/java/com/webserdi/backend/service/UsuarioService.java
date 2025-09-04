@@ -16,7 +16,6 @@ public interface UsuarioService {
     List<PermisoDto> getAllPermisos(String email);
     UsuarioDto updateUsuario(Long usuarioId,UsuarioDto usuarioDto);
     void deleteUsuario(Long usuarioId);
-    void updateUsuarioEmail(Long usuarioId, String newEmail);
     Set<String> getRole (String email);
     Long getIdByEmail(String email);
     Page<UsuarioDto> getUsuarioByDepartamento (Long id, Pageable pageable);

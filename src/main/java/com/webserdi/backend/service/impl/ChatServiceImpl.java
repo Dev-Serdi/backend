@@ -137,10 +137,11 @@ public class ChatServiceImpl implements ChatService {
         String destination = "/ticket/chat/" + chat.getId();
         logger.info("Transmitiendo mensaje (desde REST) a STOMP topic: {}", destination);
         messagingTemplate.convertAndSend(destination, messageDtoToSend);
+        if (!sender.getId().equals(ticket.getUsuarioCreador().getId()))
+        {
+            gestorNotificaciones.dispatch(new EventoNotificacionServiceImpl(TipoNotificacion.NUEVO_MENSAJE_EN_TICKET, ticket),null);
+        }
 
-//        notificationService.sendTicketMessageNotification(
-//        , savedMessage);
-        gestorNotificaciones.dispatch(new EventoNotificacionServiceImpl(TipoNotificacion.NUEVO_MENSAJE_EN_TICKET, ticket),null);
 
         return messageDtoToSend;
     }

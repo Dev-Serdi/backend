@@ -113,21 +113,6 @@ public class UsuarioController {
     }
 
     /**
-     * Actualiza el email de un usuario específico.
-     *
-     * @param id ID del usuario.
-     * @param newEmail El nuevo email a establecer (enviado como String en el body).
-     * @return Respuesta HTTP 200 con mensaje de éxito.
-     */
-    @PutMapping("/email/{id}")
-    public ResponseEntity<String> updateEmail(@PathVariable("id") Long id, @RequestBody String newEmail) {
-        // El frontend debe enviar el email como un string simple en el body, no un JSON.
-        // Si se envía JSON {"email": "nuevo@email.com"}, se necesitaría un DTO.
-        usuarioService.updateUsuarioEmail(id, newEmail);
-        return ResponseEntity.ok("Correo actualizado con éxito.");
-    }
-
-    /**
      * Obtiene los roles de un usuario basado en su email.
      *
      * @return Conjunto de nombres de roles.

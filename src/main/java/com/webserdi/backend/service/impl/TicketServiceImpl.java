@@ -106,7 +106,6 @@ public class TicketServiceImpl implements TicketService {
         logger.info("Ticket creado exitosamente con ID: {} y Código: {}", savedTicket.getId(), savedTicket.getCodigo());
 
         logger.info("Enviando notificación estándar para el ticket {}", savedTicket.getCodigo());
-//        notificationService.sendTicketCreationNotification(savedTicket);
         gestorNotificaciones.dispatch(new EventoNotificacionServiceImpl(TipoNotificacion.NUEVO_TICKET_ASIGNADO, savedTicket),null);
 
         if (savedTicket.getUsuarioAsignado() != null) {
@@ -259,6 +258,7 @@ public class TicketServiceImpl implements TicketService {
         }
 
         Ticket updatedTicket = ticketRepository.save(ticket);
+        gestorNotificaciones.dispatch(new EventoNotificacionServiceImpl(TipoNotificacion.TICKET_MODIFICADO, updatedTicket), null);
         logger.info("Ticket con ID: {} actualizado exitosamente.", updatedTicket.getId());
         return ticketMapper.toDto(updatedTicket);
     }
@@ -366,7 +366,6 @@ public class TicketServiceImpl implements TicketService {
         gestorNotificaciones.dispatch(new EventoNotificacionServiceImpl(TipoNotificacion.REASIGNACION_USUARIO_TICKET, ticket), nuevoUsuario);
         ticket.setUsuarioAsignado(usuarioRepository.findById(usuarioId).orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con ID: " + usuarioId)));
         ticket.setFechaActualizacion(getCurrentTime());
-//        notificationService.sendReassignedDepartment(ticket, nuevoUsuario);//Le mandamos el ticket sin modificar y seguidamente el correo del nuevo usuario para notificar a los 3 usuarios que se reasignó el ticket
         ticketRepository.save(ticket);
         return ticketMapper.toDto(ticket);
     }
@@ -392,6 +391,7 @@ public class TicketServiceImpl implements TicketService {
                 .orElseThrow(() -> new ResourceNotFoundException("Ticket no encontrado con ID: " + ticketId));
         ticket.setFechaCompromiso(commitmentDate);
         ticket.setFechaActualizacion(getCurrentTime());
+        gestorNotificaciones.dispatch(new EventoNotificacionServiceImpl(TipoNotificacion.FECHA_COMPROMISO_ASIGNADA,ticket),null);
         ticketRepository.save(ticket);
         return ticketMapper.toDto(ticket);
     }
