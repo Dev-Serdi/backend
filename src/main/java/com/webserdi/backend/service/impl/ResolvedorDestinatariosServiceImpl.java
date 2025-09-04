@@ -61,13 +61,13 @@ public class ResolvedorDestinatariosServiceImpl implements ResolvedorDestinatari
                 break;
 
             case PERFIL_MODIFICADO:
-            case NUEVO_USUARIO_REGISTRADO:
                 if (usuarioData != null) {
                     destinatarios.add(usuarioData); // El propio usuario afectado
                 }
-                if (evento.getTipo() == TipoNotificacion.NUEVO_USUARIO_REGISTRADO) {
-                    destinatarios.addAll(getAdmins()); // Y los admins
-                }
+                destinatarios.addAll(getAdmins()); // Y los admins
+                break;
+            case NUEVO_USUARIO_REGISTRADO:
+                destinatarios.addAll(getAdmins());
                 break;
 
             case NUEVO_MENSAJE_EN_TICKET:

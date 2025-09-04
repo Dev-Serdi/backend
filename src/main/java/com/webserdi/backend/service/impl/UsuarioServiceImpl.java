@@ -44,7 +44,6 @@ public class UsuarioServiceImpl implements UsuarioService {
     private final DepartamentoRepository departamentoRepository; // Añadir dependencia
     private final PasswordEncoder passwordEncoder;
     private final ModuloRepository moduloRepository;
-    private final NotificationService notificationService;
     private final GestorNotificacionesImpl gestorNotificacionesImpl;
 
     // El UsuarioMapper es estático, no necesita inyección si se mantiene así.
