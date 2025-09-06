@@ -22,17 +22,13 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Usuario usuario = usuarioRepository.findByEmail(username)
-                .orElseThrow(()->new ResourceNotFoundException("Usuario no encontrado"));
-        Set<GrantedAuthority> authorities = usuario.getRoles().stream()
-                .map((rol) -> new SimpleGrantedAuthority(rol.getNombre()))
-                .collect(Collectors.toSet());
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+        GrantedAuthority authority = new SimpleGrantedAuthority(usuario.getRol().getNombre());
 
         return new org.springframework.security.core.userdetails.User(
                 usuario.getEmail(),
                 usuario.getPassword(),
-                authorities
+                Set.of(authority)
         );
-
-
     }
 }

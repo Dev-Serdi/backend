@@ -72,7 +72,7 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     private Set<Usuario> getAdministradores() {
-        return usuarioRepository.findByRoles_Nombre("ROLE_ADMIN"); // Ajusta según tu lógica de roles
+        return usuarioRepository.findByRol_Nombre("ROLE_ADMIN"); // Ajusta según tu lógica de roles
     }
     /**
      * Método centralizado para crear, persistir y enviar una notificación.

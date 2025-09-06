@@ -21,11 +21,4 @@ public class Rol {
 
     private String nombre;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "rol_permisos",
-            joinColumns = @JoinColumn(name = "rol_id"),
-            inverseJoinColumns = @JoinColumn(name = "permiso_id")
-    )
-    private Set<Permiso> permisos = new HashSet<>();
 }

@@ -20,6 +20,6 @@ public class UsuarioDto {
     private boolean enabled;
     private DepartamentoDto departamento; // Departamento al que pertenece el usuario
     private ModuloDto modulo; // Departamento al que pertenece el usuario
-    private Set<String> roles = new HashSet<>(); // Nombres de los roles asignados
+    private RolDto rol; // Nombres de los roles asignados
     private Set<String> permisos = new HashSet<>(); // Nombres de los permisos asignados
 }

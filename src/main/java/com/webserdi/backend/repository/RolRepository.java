@@ -7,4 +7,6 @@ import java.util.Set;
 
 public interface RolRepository extends JpaRepository<Rol, Integer> {
     Set<Rol> findByNombreIn(Set<String> nombres);
+    Rol findRolByNombre(String nombre);
+    Rol findRolById(int id);
 }

@@ -54,12 +54,10 @@ public class Usuario {
     private Modulo modulo;
 
     /** Roles asignados al usuario. */
-    @ManyToMany(fetch = FetchType.EAGER) // EAGER para roles es común si se usan en seguridad con frecuencia
-    @JoinTable(name = "users_roles",
-            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id")
-    )
-    private Set<Rol> roles = new HashSet<>();
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "rol_id")
+    @JsonBackReference("usuario-rol") // Nombre único para la referencia
+    private Rol rol;
 
     /** Permisos directos asignados al usuario (adicionales a los de los roles). */
     @ManyToMany(fetch = FetchType.EAGER) // EAGER si se necesitan con frecuencia

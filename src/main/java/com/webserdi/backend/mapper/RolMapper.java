@@ -20,9 +20,6 @@ public class RolMapper {
         RolDto rolDto = new RolDto();
         rolDto.setId(rol.getId());
         rolDto.setNombre(rol.getNombre());
-        rolDto.setPermisos(rol.getPermisos().stream()
-                .map(Permiso::getNombre)
-                .collect(Collectors.toSet()));
         return rolDto;
     }
 }

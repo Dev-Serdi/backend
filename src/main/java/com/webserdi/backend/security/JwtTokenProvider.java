@@ -43,15 +43,10 @@ public class JwtTokenProvider {
     public String generateToken(Authentication authentication) {
         String username = authentication.getName();
 
-        List<String> roles = authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toList());
-
         Instant now = Instant.now();
 
         return Jwts.builder()
                 .setSubject(username)
-                .claim("roles", roles) // Incluir roles en el payload
                 .setIssuer("your-issuer") // Buenas prácticas: incluir issuer
                 .setIssuedAt(Date.from(now))
                 .setExpiration(Date.from(now.plusMillis(jwtExpirationMs)))

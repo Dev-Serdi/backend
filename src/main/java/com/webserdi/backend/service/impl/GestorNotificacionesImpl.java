@@ -101,7 +101,7 @@ public class GestorNotificacionesImpl implements GestorNotificacionesService {
             case TICKET_NO_AUTORIZADO:
                 return String.format("%s - Ticket #%s", evento.getTipo().getTitulo(), ticket.getCodigo());
             case NUEVO_USUARIO_REGISTRADO:
-                return String.format("Nuevo Usuario: %s %s", usuario.getNombre()+" "+usuario.getApellido());
+                return String.format("Nuevo Usuario: %s %s", usuario.getNombre(), usuario.getApellido());
             case PERFIL_MODIFICADO:
                 return "Hola "+ usuario.getNombre()+" "+usuario.getApellido()+". Tu información de perfil ha sido actualizada, favor de revisar la plataforma.";
             case USUARIO_MODIFICADO:

@@ -85,6 +85,6 @@ public class ResolvedorDestinatariosServiceImpl implements ResolvedorDestinatari
 
 
     private Set<Usuario> getAdmins() {
-        return usuarioRepository.findByRoles_Nombre("ROLE_ADMIN");
+        return usuarioRepository.findByRol_Nombre("ROLE_ADMIN");
     }
 }

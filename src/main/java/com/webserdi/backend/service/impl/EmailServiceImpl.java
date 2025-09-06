@@ -10,15 +10,17 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
 
+@EnableAsync
 @Service
 public class EmailServiceImpl implements EmailService {
     @Autowired
     private JavaMailSender mailSender;
-
 
     private SimpleMailMessage message = new SimpleMailMessage();
 
@@ -28,6 +30,7 @@ public class EmailServiceImpl implements EmailService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
+    @Async
     @Override
     public void sendHtmlEmail(String to, String subject, String htmlBody) {
         try {
@@ -47,35 +50,5 @@ public class EmailServiceImpl implements EmailService {
             // Considera lanzar una excepción personalizada aquí si es necesario
         }
     }
-
-    @Override
-    public void sendEmailToUser(String to, String subject, String body) {
-//        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(sender);
-        message.setTo(to);
-        message.setSubject(subject);
-        message.setText(body);
-        mailSender.send(message);
-    }
-
-    @Override
-    public void sendEmailToAdmins( String subject, String body) {
-        Set<Usuario> usuarios = usuarioRepository.findByRoles_Nombre("ROLE_ADMIN");
-        message.setFrom(sender);
-        message.setTo(usuarios.stream().map(Usuario::getEmail).toArray(String[]::new));
-        message.setSubject(subject);
-        message.setText(body);
-//        mailSender.send(message);
-    }
-
-    @Override
-    public void sendEmailToMultipleUsers(Set<Usuario> usuarios, String subject, String body){
-        message.setFrom(sender);
-        message.setTo(usuarios.stream().map(Usuario::getEmail).toArray(String[]::new));
-        message.setSubject(subject);
-        message.setText(body);
-//        mailSender.send(message);
-    }
-
 
 }

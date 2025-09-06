@@ -20,6 +20,6 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
     Page<Usuario> findAllByNombreContainsIgnoreCaseOrApellidoContainsIgnoreCaseOrEmailContainsIgnoreCase(String searchTerm,String searchTerm2,String searchTerm3, Pageable pageable);
 
-    Set<Usuario> findByRoles_Nombre(String nombre);
+    Set<Usuario> findByRol_Nombre(String nombre);
 
 }

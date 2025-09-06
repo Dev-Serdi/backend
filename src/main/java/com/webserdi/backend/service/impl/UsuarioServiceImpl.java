@@ -87,6 +87,8 @@ public class UsuarioServiceImpl implements UsuarioService {
         }
         else usuario.setUbicacion(usuarioDto.getUbicacion());
         setUsuarioRelationships(usuario, usuarioDto);
+        Rol rol = rolRepository.findRolByNombre("ROLE_USER");
+        usuario.setRol(rol);
 
         Usuario savedUsuario = usuarioRepository.save(usuario);
         logger.info("Usuario creado exitosamente con ID: {}", savedUsuario.getId());
@@ -116,9 +118,6 @@ public class UsuarioServiceImpl implements UsuarioService {
         }
         if (!StringUtils.hasText(dto.getPassword())) {
             throw new ResourceNotFoundException("La contraseña es obligatoria para crear un usuario.");
-        }
-        if (CollectionUtils.isEmpty(dto.getRoles())) {
-            throw new ResourceNotFoundException("Se debe asignar al menos un rol al usuario.");
         }
         // El departamento es opcional en la entidad Usuario, pero podría ser obligatorio según la lógica de negocio.
         // if (dto.getDepartamento() == null || dto.getDepartamento().getId() == null) {
@@ -155,21 +154,6 @@ public class UsuarioServiceImpl implements UsuarioService {
             usuario.setModulo(modulo);
         } else {
             usuario.setModulo(null); // Asegurar que sea null si no se proporciona
-        }
-
-        // Asignar Roles
-        if (!CollectionUtils.isEmpty(dto.getRoles())) {
-            Set<Rol> roles = rolRepository.findByNombreIn(dto.getRoles());
-            if (roles.size() != dto.getRoles().size()) {
-                // Encontrar los roles que no se encontraron para un mensaje de error más específico
-                Set<String> foundRoleNames = roles.stream().map(Rol::getNombre).collect(Collectors.toSet());
-                dto.getRoles().removeAll(foundRoleNames);
-                logger.warn("Algunos roles no fueron encontrados: {}", dto.getRoles());
-                throw new ResourceNotFoundException("Uno o más roles especificados no existen: " + dto.getRoles());
-            }
-            usuario.setRoles(roles);
-        } else {
-            usuario.setRoles(Collections.emptySet()); // O lanzar error si se requiere al menos un rol
         }
 
         // Asignar Permisos (opcional, los permisos a menudo se derivan de los roles)
@@ -286,6 +270,8 @@ public class UsuarioServiceImpl implements UsuarioService {
         savedUsuario.setNombre(usuarioDto.getNombre());
         savedUsuario.setApellido(usuarioDto.getApellido());
         savedUsuario.setEnabled(usuarioDto.isEnabled());
+        Rol rol = rolRepository.findRolById(usuarioDto.getRol().getId());
+        savedUsuario.setRol(rol);
 
 
         // Actualizar relaciones
@@ -361,17 +347,6 @@ public class UsuarioServiceImpl implements UsuarioService {
             permisosDelUsuario.addAll(usuario.getPermisos());
         }
 
-        // Añadir permisos de los roles del usuario
-        // Asumiendo que la entidad Rol tiene un metodo getPermisos() que devuelve Set<Permiso>
-        // y que los roles y sus permisos se cargan (EAGER o se obtienen aquí)
-        if (!CollectionUtils.isEmpty(usuario.getRoles())) {
-            for (Rol rol : usuario.getRoles()) {
-                if (!CollectionUtils.isEmpty(rol.getPermisos())) { // Asegúrate que Rol tenga getPermisos()
-                    permisosDelUsuario.addAll(rol.getPermisos());
-                }
-            }
-        }
-
         if (permisosDelUsuario.isEmpty()) {
             logger.debug("El usuario con email {} no tiene permisos asignados.", email);
             return Collections.emptyList();
@@ -394,19 +369,15 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     @Transactional(readOnly = true)
-    public Set<String> getRole(String email) {
+    public String getRole(String email) {
         logger.debug("Obteniendo roles para el email: {}", email);
         Usuario user = usuarioRepository.findByEmail(email)
                 .orElseThrow(() -> {
                     logger.warn("Usuario no encontrado con email: {}", email);
                     return new ResourceNotFoundException("No existe el usuario con el email: " + email);
                 });
-        if (CollectionUtils.isEmpty(user.getRoles())) {
-            return Collections.emptySet();
-        }
-        return user.getRoles().stream()
-                .map(Rol::getNombre)
-                .collect(Collectors.toSet());
+        Rol rol = rolRepository.findRolByNombre(user.getRol().getNombre());
+        return rol.getNombre();
     }
 
     /**
