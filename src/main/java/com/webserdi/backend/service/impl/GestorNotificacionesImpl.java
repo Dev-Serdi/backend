@@ -202,10 +202,11 @@ public class GestorNotificacionesImpl implements GestorNotificacionesService {
                 break;
             case REASIGNACION_USUARIO_TICKET:
                 mensaje = String.format(
-                        "<p>Hola <strong>%s</strong>,</p>" +
-                                "<p>El ticket <b>%s</b> se te ha reasignado. Verifica su información.</p>",
-                        usuarioNuevoAsignado != null ? usuarioNuevoAsignado.getNombre() : destinatario.getNombre(),
-                        ticket != null ? ticket.getCodigo() : "");
+                        "<p>Hola.</p>" +
+                                "<p>El ticket <b>%s</b>, cambió de <strong>%s</strong> a <strong>%s</strong>. Verifica su información.</p>",
+                        ticket != null ? ticket.getCodigo() : "",
+                        ticket != null ? ticket.getUsuarioAsignado(): "",
+                        usuarioNuevoAsignado != null ? usuarioNuevoAsignado.getNombre() : destinatario.getNombre());
                 ctaTexto = "Revisar Ticket";
                 ctaUrl += "/helpdesk/task/" + (ticket != null ? ticket.getId() : "");
                 break;
