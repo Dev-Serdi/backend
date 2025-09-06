@@ -205,7 +205,7 @@ public class GestorNotificacionesImpl implements GestorNotificacionesService {
                         "<p>Hola.</p>" +
                                 "<p>El ticket <b>%s</b>, cambió de <strong>%s</strong> a <strong>%s</strong>. Verifica su información.</p>",
                         ticket != null ? ticket.getCodigo() : "",
-                        ticket != null ? ticket.getUsuarioAsignado(): "",
+                        ticket != null && ticket.getUsuarioAsignado() != null ? ticket.getUsuarioAsignado().getNombre() : "",
                         usuarioNuevoAsignado != null ? usuarioNuevoAsignado.getNombre() : destinatario.getNombre());
                 ctaTexto = "Revisar Ticket";
                 ctaUrl += "/helpdesk/task/" + (ticket != null ? ticket.getId() : "");
