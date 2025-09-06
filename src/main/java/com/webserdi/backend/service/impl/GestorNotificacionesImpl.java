@@ -212,14 +212,17 @@ public class GestorNotificacionesImpl implements GestorNotificacionesService {
                 break;
             case REASIGNACION_DEPARTAMENTO_TICKET:
                 mensaje = String.format(
-                        "<p>Hola <strong>%s</strong>,</p>" +
-                                "<p>El ticket <b>%s</b> se te ha reasignado para el departamento <b>%s</b>. Verifica su información.</p>",
-                        destinatario.getNombre(),
+                        "<p>Hola.</p>" +
+                                "<p>El ticket <b>%s</b> ha sido reasignado al departamento <b>%s</b>.</p>" +
+                                "<p>Se asignó el usuario <b>%s</b>. Verifica su información.</p>",
                         ticket != null ? ticket.getCodigo() : "",
-                        ticket != null && ticket.getDepartamento() != null ? ticket.getDepartamento().getNombre() : "");
+                        ticket != null && ticket.getDepartamento() != null ? ticket.getDepartamento().getNombre() : "",
+                        ticket != null && ticket.getUsuarioAsignado() != null ? ticket.getUsuarioAsignado().getNombre() : ""
+                );
                 ctaTexto = "Revisar Ticket";
                 ctaUrl += "/helpdesk/task/" + (ticket != null ? ticket.getId() : "");
                 break;
+
             case NUEVO_TICKET_CREADO:
                 mensaje = String.format(
                         "<p>Hola <strong>%s</strong>,</p>" +
