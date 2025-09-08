@@ -206,7 +206,7 @@ public class GestorNotificacionesImpl implements GestorNotificacionesService {
                                 "<p>El ticket <b>%s</b>, cambió de <strong>%s</strong> a <strong>%s</strong>. Verifica su información.</p>",
                         ticket != null ? ticket.getCodigo() : "",
                         ticket != null ? ticket.getUsuarioAsignado(): "",
-                        usuarioNuevoAsignado != null ? usuarioNuevoAsignado.getNombre() : destinatario.getNombre());
+                        usuarioNuevoAsignado != null ? usuarioNuevoAsignado.getNombre()+" "+ usuarioNuevoAsignado.getApellido() : destinatario.getNombre());
                 ctaTexto = "Revisar Ticket";
                 ctaUrl += "/helpdesk/task/" + (ticket != null ? ticket.getId() : "");
                 break;
@@ -220,7 +220,7 @@ public class GestorNotificacionesImpl implements GestorNotificacionesService {
                                 "<p>Se asignó el usuario <b>%s</b>. Verifica su información.</p>",
                         ticket != null ? ticket.getCodigo() : "",
                         ticket != null && ticket.getDepartamento() != null ? ticket.getDepartamento().getNombre() : "",
-                        ticket != null && ticket.getUsuarioAsignado() != null ? ticket.getUsuarioAsignado().getNombre() : ""
+                        ticket != null && ticket.getUsuarioAsignado() != null ? ticket.getUsuarioAsignado().getNombre()+" "+ ticket.getUsuarioAsignado().getApellido() : ""
                 );
                 ctaTexto = "Revisar Ticket";
                 ctaUrl += "/helpdesk/task/" + (ticket != null ? ticket.getId() : "");
