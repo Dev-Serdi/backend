@@ -79,13 +79,14 @@ public class GestorNotificacionesImpl implements GestorNotificacionesService {
         }
         Usuario usuario = (evento.getData() instanceof Usuario) ? (Usuario) evento.getData() : null;
 
+        assert usuario != null;
         switch (evento.getTipo()){
             case PERFIL_MODIFICADO :
                 return "Hola "+ usuario.getNombre()+" "+usuario.getApellido()+", tu perfil ha sido actualizado. Por favor, recarga la página.";
             case USUARIO_MODIFICADO:
                 return "El perfil de: "+ usuario.getNombre()+" "+usuario.getApellido()+", ha sido actualizado por un administrador.";
             case NUEVO_USUARIO_REGISTRADO:
-                return "Se ha registrado "+usuario.getNombre()+" "+usuario.getApellido()+", favor de revisar su informacion.";
+                return "Se ha registrado "+usuario.getNombre()+" "+usuario.getApellido()+", favor de revisar su información.";
         }
 
         return null;
@@ -93,7 +94,7 @@ public class GestorNotificacionesImpl implements GestorNotificacionesService {
     private String construirAsunto(EventoNotificacionServiceImpl evento) {
         Ticket ticket = (evento.getData() instanceof Ticket) ? (Ticket) evento.getData() : null;
         Usuario usuario = (evento.getData() instanceof Usuario) ? (Usuario) evento.getData() : null;
-
+        assert ticket != null;
         switch (evento.getTipo()) {
             case NUEVO_TICKET_ASIGNADO:
             case CAMBIO_ESTADO_TICKET:
@@ -116,7 +117,7 @@ public class GestorNotificacionesImpl implements GestorNotificacionesService {
         Ticket ticket = (evento.getData() instanceof Ticket) ? (Ticket) evento.getData() : null;
         Usuario usuarioData = (evento.getData() instanceof Usuario) ? (Usuario) evento.getData() : null;
 
-        String mensaje = "";
+        String mensaje;
         // <-- IMPORTANTE: Cambia esta URL
         String ctaUrl = "https://mds.serdi.com.mx";
         String ctaTexto = "Ir a la Plataforma";
