@@ -186,9 +186,10 @@ public class GestorNotificacionesImpl implements GestorNotificacionesService {
                 break;
             case USUARIO_MODIFICADO:
                 mensaje = String.format(
-                        "<p>Hola.</p>" +
+                        "<p>Hola <strong>%s</>.</p>" +
                                 "<p>El perfil de <strong>%s</strong> ha sido modificado por un administrador.</p>",
-                        usuarioData.getNombre()+" "+ usuarioData.getApellido());
+                        destinatario != null ? destinatario.getNombre() : "",
+                        usuarioData != null ? usuarioData.getNombre()+" "+ usuarioData.getApellido():"");
                 ctaTexto = "Ver Mi Perfil";
                 ctaUrl += "/perfil/" + usuarioData.getId();
                 break;
