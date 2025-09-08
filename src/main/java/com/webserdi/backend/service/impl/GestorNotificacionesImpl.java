@@ -239,7 +239,7 @@ public class GestorNotificacionesImpl implements GestorNotificacionesService {
                 mensaje = String.format(
                         "<p>Hola.</p>" +
                                 "<p>El perfil de <strong>%s</strong> ha sido modificado por un administrador. Si no reconoces esta acción, contacta soporte.</p>",
-                        destinatario.getNombre());
+                        destinatario.getNombre()+" "+ destinatario.getApellido());
                 ctaTexto = "Ver Mi Perfil";
                 ctaUrl += "/perfil/" + destinatario.getId();
                 break;
