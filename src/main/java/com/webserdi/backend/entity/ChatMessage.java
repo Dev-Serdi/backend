@@ -45,7 +45,6 @@ public final class ChatMessage {
     private String attachmentMimeType; // e.g., "application/pdf", "image/jpeg"
     // --- End Attachment Fields ---
 
-    @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime timestamp;
 
