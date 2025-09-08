@@ -184,13 +184,21 @@ public class GestorNotificacionesImpl implements GestorNotificacionesService {
                         destinatario.getNombre(), ticket != null ? ticket.getCodigo() : "");
                 ctaTexto = "Ir a la Plataforma";
                 break;
+            case USUARIO_MODIFICADO:
+                mensaje = String.format(
+                        "<p>Hola.</p>" +
+                                "<p>El perfil de <strong>%s</strong> ha sido modificado por un administrador.</p>",
+                        usuarioData.getNombre()+" "+ usuarioData.getApellido());
+                ctaTexto = "Ver Mi Perfil";
+                ctaUrl += "/perfil/" + usuarioData.getId();
+                break;
             case PERFIL_MODIFICADO:
                 mensaje = String.format(
                         "<p>Hola <strong>%s</strong>,</p>" +
                                 "<p>Tu información de perfil ha sido actualizada. Si no reconoces esta actividad, contacta a un administrador.</p>",
-                        destinatario.getNombre());
+                        usuarioData.getNombre());
                 ctaTexto = "Ver Mi Perfil";
-                ctaUrl += "/perfil/" + destinatario.getId();
+                ctaUrl += "/perfil/" + usuarioData.getId();
                 break;
             case TICKET_MODIFICADO:
                 mensaje = String.format(
@@ -234,14 +242,6 @@ public class GestorNotificacionesImpl implements GestorNotificacionesService {
                         destinatario.getNombre(), ticket != null ? ticket.getCodigo() : "");
                 ctaTexto = "Ver Ticket";
                 ctaUrl += "/helpdesk/task/" + (ticket != null ? ticket.getId() : "");
-                break;
-            case USUARIO_MODIFICADO:
-                mensaje = String.format(
-                        "<p>Hola.</p>" +
-                                "<p>El perfil de <strong>%s</strong> ha sido modificado por un administrador. Si no reconoces esta acción, contacta soporte.</p>",
-                        destinatario.getNombre()+" "+ destinatario.getApellido());
-                ctaTexto = "Ver Mi Perfil";
-                ctaUrl += "/perfil/" + destinatario.getId();
                 break;
             default:
                 mensaje = "<p>Hay una nueva notificación en la plataforma.</p>";
