@@ -72,7 +72,7 @@ public class GestorNotificacionesImpl implements GestorNotificacionesService {
     private String construirCuerpo(EventoNotificacionServiceImpl evento) {
         // Aquí puedes desarrollar una lógica más elaborada para generar el cuerpo del correo
         // basándote en el tipo de evento y los datos.
-        // Por ahora, un mensaje genérico:
+        // Por ahora, un mensaje genérico
         Ticket ticket = (evento.getData() instanceof Ticket) ? (Ticket) evento.getData() : null;
         if (ticket != null) {
             return ticket.getCodigo() + ": " + evento.getTipo().getTitulo() + ". Por favor, revisa la plataforma para más detalles";
