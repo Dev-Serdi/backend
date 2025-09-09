@@ -93,7 +93,7 @@ public class UsuarioServiceImpl implements UsuarioService {
         Usuario savedUsuario = usuarioRepository.save(usuario);
         logger.info("Usuario creado exitosamente con ID: {}", savedUsuario.getId());
 
-        gestorNotificacionesImpl.dispatch(new EventoNotificacionServiceImpl(TipoNotificacion.NUEVO_USUARIO_REGISTRADO, savedUsuario),savedUsuario);
+        gestorNotificacionesImpl.dispatch(new EventoNotificacionServiceImpl(TipoNotificacion.NUEVO_USUARIO_REGISTRADO, savedUsuario),savedUsuario,null);
 
         return usuarioMapper.mapToUsuarioDto(savedUsuario);
     }
@@ -278,8 +278,8 @@ public class UsuarioServiceImpl implements UsuarioService {
         setUsuarioRelationships(savedUsuario, usuarioDto); // Reutilizar metodo
 
         Usuario usuarioActualizado = usuarioRepository.save(savedUsuario);
-        gestorNotificacionesImpl.dispatch( new EventoNotificacionServiceImpl(TipoNotificacion.PERFIL_MODIFICADO, usuarioActualizado),null);
-        gestorNotificacionesImpl.dispatch( new EventoNotificacionServiceImpl(TipoNotificacion.USUARIO_MODIFICADO, usuarioActualizado),savedUsuario);
+        gestorNotificacionesImpl.dispatch( new EventoNotificacionServiceImpl(TipoNotificacion.PERFIL_MODIFICADO, usuarioActualizado),null,null);
+        gestorNotificacionesImpl.dispatch( new EventoNotificacionServiceImpl(TipoNotificacion.USUARIO_MODIFICADO, usuarioActualizado),savedUsuario,null);
         logger.info("Usuario con ID: {} actualizado exitosamente.", usuarioId);
         return usuarioMapper.mapToUsuarioDto(usuarioActualizado);
     }

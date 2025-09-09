@@ -25,8 +25,12 @@ public class GestorNotificacionesImpl implements GestorNotificacionesService {
 
 
     @Override
-    public void dispatch(EventoNotificacionServiceImpl evento, Usuario usuarioNuevoAsignado) {
+    public void dispatch(EventoNotificacionServiceImpl evento, Usuario usuarioNuevoAsignado, Usuario usuarioRemitente) {
         Set<Usuario> destinatarios = resolvedorDestinatarios.resolver(evento);
+        // Excluir al usuario remitente
+        if (usuarioRemitente != null) {
+            destinatarios.remove(usuarioRemitente);
+        }
         // 1. Obtener la lista de destinatarios según las reglas de negocio
         Ticket ticket = (evento.getData() instanceof Ticket) ? (Ticket) evento.getData() : null;
         String ruta = (ticket != null) ? "/helpdesk/task/" + ticket.getId() : (usuarioNuevoAsignado!= null)? "/perfil/"+ usuarioNuevoAsignado.getId(): "/perfil";

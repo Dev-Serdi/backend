@@ -98,8 +98,7 @@ public class ChatServiceImpl implements ChatService {
         if (!hasContent && !hasFile) {
             throw new ResourceNotFoundException("El mensaje debe tener contenido o un archivo adjunto.");
         }
-        if (!ticket.getIsAttended() && !sender.getId().equals(ticket.getUsuarioCreador().getId()))
-        {
+        if (!ticket.getIsAttended() && !sender.getId().equals(ticket.getUsuarioCreador().getId())) {
             ticket.setIsAttended(true);
             ticket.setFechaRespuesta(now);
             ticketRepository.save(ticket);
@@ -137,12 +136,8 @@ public class ChatServiceImpl implements ChatService {
         String destination = "/ticket/chat/" + chat.getId();
         logger.info("Transmitiendo mensaje (desde REST) a STOMP topic: {}", destination);
         messagingTemplate.convertAndSend(destination, messageDtoToSend);
-        if (!sender.getId().equals(ticket.getUsuarioCreador().getId()))
-        {
-            gestorNotificaciones.dispatch(new EventoNotificacionServiceImpl(TipoNotificacion.NUEVO_MENSAJE_EN_TICKET, ticket),null);
-        }
 
-
+        gestorNotificaciones.dispatch(new EventoNotificacionServiceImpl(TipoNotificacion.NUEVO_MENSAJE_EN_TICKET, ticket), null, sender);
         return messageDtoToSend;
     }
 
