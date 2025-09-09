@@ -106,7 +106,7 @@ public class TicketServiceImpl implements TicketService {
         logger.info("Ticket creado exitosamente con ID: {} y Código: {}", savedTicket.getId(), savedTicket.getCodigo());
 
         logger.info("Enviando notificación estándar para el ticket {}", savedTicket.getCodigo());
-        gestorNotificaciones.dispatch(new EventoNotificacionServiceImpl(TipoNotificacion.NUEVO_TICKET_ASIGNADO, savedTicket),null);
+        gestorNotificaciones.dispatch(new EventoNotificacionServiceImpl(TipoNotificacion.NUEVO_TICKET_ASIGNADO, savedTicket),null,null);
 
         if (savedTicket.getUsuarioAsignado() != null) {
             logger.info("Enviando notificación WebSocket al usuario asignado: {}", savedTicket.getUsuarioAsignado().getEmail());
@@ -258,7 +258,7 @@ public class TicketServiceImpl implements TicketService {
         }
 
         Ticket updatedTicket = ticketRepository.save(ticket);
-        gestorNotificaciones.dispatch(new EventoNotificacionServiceImpl(TipoNotificacion.TICKET_MODIFICADO, updatedTicket), null);
+        gestorNotificaciones.dispatch(new EventoNotificacionServiceImpl(TipoNotificacion.TICKET_MODIFICADO, updatedTicket), null,null);
         logger.info("Ticket con ID: {} actualizado exitosamente.", updatedTicket.getId());
         return ticketMapper.toDto(updatedTicket);
     }
@@ -280,7 +280,7 @@ public class TicketServiceImpl implements TicketService {
         }
 
         logger.info("Transmitiendo notificacion al usuario asignado");
-        gestorNotificaciones.dispatch(new EventoNotificacionServiceImpl(TipoNotificacion.CAMBIO_ESTADO_TICKET, updatedTicket),null);
+        gestorNotificaciones.dispatch(new EventoNotificacionServiceImpl(TipoNotificacion.CAMBIO_ESTADO_TICKET, updatedTicket),null,null);
         ticketRepository.save(updatedTicket);
         return ticketMapper.toDto(updatedTicket);
     }
@@ -288,7 +288,7 @@ public class TicketServiceImpl implements TicketService {
     @Override
     @Transactional
     public void notAuthorized(Long ticketId, Long usuarioId) {
-        logger.info("Iniciando proceso para marcar ticket ID: {} como NO AUTORIZADO por usuario ID: {}", ticketId, usuarioId);
+        logger.info("Iniciando proceso para marcar ticket ID: {} como NO AUTORIZADO por usuario ID: {}", ticketId, usuarioId,null);
 
         Ticket ticket = ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new ResourceNotFoundException("Ticket no encontrado con ID: " + ticketId));
@@ -306,7 +306,7 @@ public class TicketServiceImpl implements TicketService {
         ticket.setUsuarioCerrar(usuarioResponsable);
 
         ticketRepository.save(ticket);
-        gestorNotificaciones.dispatch(new EventoNotificacionServiceImpl(TipoNotificacion.TICKET_NO_AUTORIZADO, ticket),null);
+        gestorNotificaciones.dispatch(new EventoNotificacionServiceImpl(TipoNotificacion.TICKET_NO_AUTORIZADO, ticket),null,null);
         logger.info("Ticket con ID {} marcado como NO AUTORIZADO exitosamente.", ticketId);
     }
 
@@ -363,7 +363,7 @@ public class TicketServiceImpl implements TicketService {
         Usuario nuevoUsuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado: " + usuarioId));
         if(Objects.equals(ticket.getUsuarioAsignado().getId(), usuarioId)) return ticketMapper.toDto(ticket);
-        gestorNotificaciones.dispatch(new EventoNotificacionServiceImpl(TipoNotificacion.REASIGNACION_USUARIO_TICKET, ticket), nuevoUsuario);
+        gestorNotificaciones.dispatch(new EventoNotificacionServiceImpl(TipoNotificacion.REASIGNACION_USUARIO_TICKET, ticket), nuevoUsuario,null);
         ticket.setUsuarioAsignado(usuarioRepository.findById(usuarioId).orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con ID: " + usuarioId)));
         ticket.setFechaActualizacion(getCurrentTime());
         ticketRepository.save(ticket);
@@ -381,7 +381,7 @@ public class TicketServiceImpl implements TicketService {
         ticket.setFechaActualizacion(getCurrentTime());
         ticket.setUsuarioAsignado(nuevoUsuario);
         ticketRepository.save(ticket);
-        gestorNotificaciones.dispatch(new EventoNotificacionServiceImpl(TipoNotificacion.REASIGNACION_DEPARTAMENTO_TICKET, ticket), null);
+        gestorNotificaciones.dispatch(new EventoNotificacionServiceImpl(TipoNotificacion.REASIGNACION_DEPARTAMENTO_TICKET, ticket), null,null);
         return ticketMapper.toDto(ticket);
     }
 
@@ -391,7 +391,7 @@ public class TicketServiceImpl implements TicketService {
                 .orElseThrow(() -> new ResourceNotFoundException("Ticket no encontrado con ID: " + ticketId));
         ticket.setFechaCompromiso(commitmentDate);
         ticket.setFechaActualizacion(getCurrentTime());
-        gestorNotificaciones.dispatch(new EventoNotificacionServiceImpl(TipoNotificacion.FECHA_COMPROMISO_ASIGNADA,ticket),null);
+        gestorNotificaciones.dispatch(new EventoNotificacionServiceImpl(TipoNotificacion.FECHA_COMPROMISO_ASIGNADA,ticket),null,null);
         ticketRepository.save(ticket);
         return ticketMapper.toDto(ticket);
     }
