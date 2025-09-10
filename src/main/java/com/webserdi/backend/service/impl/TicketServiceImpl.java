@@ -568,7 +568,7 @@ public class TicketServiceImpl implements TicketService {
                 fechaVencimiento = fechaRegistro.toLocalDate().plusDays(8);
                 break;
             default:
-                fechaVencimiento = fechaRegistro.toLocalDate().plusDays(5);
+                fechaVencimiento = fechaRegistro.toLocalDate().plusDays(10);
                 logger.warn("Prioridad desconocida: {}. Se asigna fecha de vencimiento por defecto (+5 días).", prioridad);
                 break;
         }
