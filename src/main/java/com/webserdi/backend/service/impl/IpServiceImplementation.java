@@ -84,6 +84,33 @@ public class IpServiceImplementation implements IpService {
     public Page<IpDto> obtenerTodasLasIps(Pageable pageable) {
         logger.debug("Obteniendo todas las IPs registradas.");
         Page<Ip> todasLasIps = ipRepository.findAll(pageable);
-        return todasLasIps.map(IpMapper::toDto);
+    return todasLasIps.map(IpMapper::toDto);
     }
+
+    @Override
+    public Page<IpDto> getIpsByParams(Pageable pageable, String param){
+
+            Page<Ip> ipsPage;
+
+            if (param != null && !param.trim().isEmpty()) {
+                // Búsqueda por nombre o email con paginación
+                ipsPage = ipRepository.findByUsuario_NombreContainingOrUsuario_EmailContaining(
+                        param, param, pageable);
+            } else {
+                // Si no hay parámetro, obtener todos
+                ipsPage = ipRepository.findAll(pageable);
+            }
+
+        return ipsPage.map(ip -> {
+            IpDto dto = new IpDto();
+            // Mapear propiedades de Ip a IpDto
+            dto.setId(ip.getId());
+            dto.setIp(ip.getIp());
+            dto.setFechaRegistro(ip.getFechaRegistro());
+            dto.setUsuarioId(ip.getUsuario().getId());
+            dto.setNombreUsuario(ip.getUsuario().getNombre()+" "+ip.getUsuario().getApellido());
+            dto.setUsuarioEmail(ip.getUsuario().getEmail());
+            return dto;
+        });
+        }
 }

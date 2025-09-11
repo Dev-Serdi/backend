@@ -14,4 +14,6 @@ public interface IpRepository extends JpaRepository<Ip, Long> {
     // Métodos de búsqueda personalizados si los necesitas, por ejemplo:
     Page<Ip> findByUsuarioIdOrderByFechaRegistroDesc(Long usuarioId, Pageable pageable);
 
+    Page<Ip> findByUsuario_NombreContainingOrUsuario_EmailContaining(
+            String nombre, String email, Pageable pageable);
 }

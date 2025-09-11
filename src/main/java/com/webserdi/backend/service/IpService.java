@@ -41,4 +41,5 @@ public interface IpService {
      * @return Una lista de todos los DTOs de IP.
      */
     Page<IpDto> obtenerTodasLasIps(Pageable pageable);
+    Page<IpDto> getIpsByParams(Pageable pageable, String params);
 }
