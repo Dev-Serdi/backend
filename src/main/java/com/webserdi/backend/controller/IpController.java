@@ -41,14 +41,23 @@ public class IpController {
         return ResponseEntity.ok(ipDto);
     }
 
+//    @GetMapping
+//    public ResponseEntity<Page<IpDto>> getAllIps(
+//            @PageableDefault(size = 8) @SortDefault.SortDefaults({
+//                    @SortDefault(sort = "fechaRegistro", direction = Sort.Direction.DESC),
+//            })Pageable pageable) {
+//        Page<IpDto> ips = ipService.obtenerTodasLasIps(pageable);
+//        return ResponseEntity.ok(ips);
+//    }
     @GetMapping
-    public ResponseEntity<Page<IpDto>> getAllIps(
+    public ResponseEntity<Page<IpDto>> getIpsByParams(
             @PageableDefault(size = 8) @SortDefault.SortDefaults({
-                    @SortDefault(sort = "fechaRegistro", direction = Sort.Direction.DESC),
-            })Pageable pageable) {
-        Page<IpDto> ips = ipService.obtenerTodasLasIps(pageable);
-        return ResponseEntity.ok(ips);
+                    @SortDefault(sort = "fechaRegistro", direction = Sort.Direction.DESC)
+            }) Pageable pageable,
+            @RequestParam(required = false) String param) {
+        Page<IpDto> ipDtos = ipService.getIpsByParams(pageable, param);
+        return ResponseEntity.ok(ipDtos);
     }
 
-}
+    }
 
