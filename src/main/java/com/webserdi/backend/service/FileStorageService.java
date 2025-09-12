@@ -14,6 +14,17 @@ public interface FileStorageService {
     String storeFile(MultipartFile file);
 
     /**
+     * Stores a file with a custom name (for blob/carpeta simulation).
+     * @param file The file to store.
+     * @param customName The custom name to use (e.g. carpeta__uuid.ext)
+     * @return The name under which the file was stored.
+     */
+    default String storeFile(MultipartFile file, String customName) {
+        // Por defecto, ignora el nombre personalizado y usa el método estándar
+        return storeFile(file);
+    }
+
+    /**
      * Loads a file as a Resource.
      * @param filename The unique filename.
      * @return The Resource object.

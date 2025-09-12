@@ -71,6 +71,32 @@ public class FileSystemStorageServiceImpl implements FileStorageService {
         }
     }
 
+    /**
+     * Permite guardar el archivo con un nombre personalizado (simulando carpeta).
+     * Si se usa, el archivo se guarda con ese nombre en el sistema de archivos local.
+     */
+    @Override
+    public String storeFile(MultipartFile file, String customName) {
+        String fileExtension = "";
+        String originalFilename = StringUtils.cleanPath(file.getOriginalFilename());
+        int dotIndex = originalFilename.lastIndexOf('.');
+        if (dotIndex > 0) {
+            fileExtension = originalFilename.substring(dotIndex); // Incluye el punto
+        }
+        // Si el nombre personalizado no tiene extensión, se la agregamos
+        String finalName = customName;
+        if (dotIndex > 0 && !customName.endsWith(fileExtension)) {
+            finalName += fileExtension;
+        }
+        try (InputStream inputStream = file.getInputStream()) {
+            Path targetLocation = this.fileStorageLocation.resolve(finalName);
+            Files.copy(inputStream, targetLocation, StandardCopyOption.REPLACE_EXISTING);
+            return finalName;
+        } catch (IOException ex) {
+            throw new FileStorageException("Could not store file " + finalName + ". Please try again!", ex);
+        }
+    }
+
     @Override
     public Resource loadFileAsResource(String filename) {
         try {
