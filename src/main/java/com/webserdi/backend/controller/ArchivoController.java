@@ -4,6 +4,7 @@ import com.webserdi.backend.dto.ArchivoDto;
 import com.webserdi.backend.entity.Archivo;
 import com.webserdi.backend.exception.ResourceNotFoundException;
 import com.webserdi.backend.service.ArchivoService;
+import com.webserdi.backend.service.impl.AzureBlobStorageServiceImpl;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
@@ -30,6 +31,8 @@ public class ArchivoController {
 
     private final ArchivoService archivoService;
     private final ArchivoRepository archivoRepository;
+    private final AzureBlobStorageServiceImpl azureBlobStorageServiceImpl;
+
     // Guardar metadatos del archivo
     @PostMapping
     public ResponseEntity<ArchivoDto> createArchivo(@RequestBody ArchivoDto archivoDto) {
@@ -100,24 +103,12 @@ public class ArchivoController {
         Archivo archivo = archivoRepository
                 .findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Archivo no encontrado"));
-
-        try {
-            Path path = Paths.get(archivo.getRuta());
-            Resource recurso = new UrlResource(path.toUri());
-
-            if (!recurso.exists() || !recurso.isReadable()) {
-                throw new RuntimeException("No se puede leer el archivo");
-            }
-
-            String contentType = archivo.getTipo();
-
-            return ResponseEntity.ok()
-                    .contentType(MediaType.parseMediaType(contentType))
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + archivo.getNombre() + "\"")
-                    .body(recurso);
-        } catch (MalformedURLException e) {
-            throw new RuntimeException("Error al leer el archivo: " + e.getMessage());
-        }
+        Resource recurso = azureBlobStorageServiceImpl.downloadFile(archivo.getNombre(), "blobdegestiondocumental");
+        String contentType = archivo.getTipo();
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(contentType))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + archivo.getNombre() + "\"")
+                .body(recurso);
     }
 
     @GetMapping("/sitio/{sitioId}")

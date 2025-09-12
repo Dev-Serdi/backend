@@ -42,6 +42,17 @@ public class AzureBlobStorageServiceImpl implements FileStorageService {
             blobContainerClient.create();
         }
     }
+    @Override
+    public String uploadFile(MultipartFile file, String containerName) {
+        BlobContainerClient containerClient = blobServiceClient.getBlobContainerClient(containerName);
+        BlobClient blobClient = containerClient.getBlobClient(file.getOriginalFilename());
+        try {
+            blobClient.upload(file.getInputStream(), file.getSize(), true);
+            return file.getOriginalFilename();
+        } catch (IOException e) {
+            throw new RuntimeException("Error al subir archivo al blob", e);
+        }
+    }
 
     @Override
     public String storeFile(MultipartFile file) {
@@ -76,6 +87,12 @@ public class AzureBlobStorageServiceImpl implements FileStorageService {
     public java.nio.file.Path getFilePath(String filename) {
         // No aplica para blob, pero se puede devolver null o lanzar excepción si se usa
         throw new UnsupportedOperationException("getFilePath no es aplicable para Azure Blob Storage");
+    }
+    @Override
+    public Resource downloadFile(String filename, String containerName) {
+        BlobContainerClient containerClient = blobServiceClient.getBlobContainerClient(containerName);
+        BlobClient blobClient = containerClient.getBlobClient(filename);
+        return new InputStreamResource(blobClient.openInputStream());
     }
 }
 
