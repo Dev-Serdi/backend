@@ -4,7 +4,9 @@ import com.webserdi.backend.dto.ArchivoDto;
 import com.webserdi.backend.entity.Archivo;
 import com.webserdi.backend.exception.ResourceNotFoundException;
 import com.webserdi.backend.service.ArchivoService;
+import com.webserdi.backend.service.impl.AzureBlobStorageServiceImpl;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -27,9 +29,11 @@ import java.util.List;
 @RequestMapping("/api/archivos")
 @AllArgsConstructor
 public class ArchivoController {
-
     private final ArchivoService archivoService;
     private final ArchivoRepository archivoRepository;
+    @Autowired
+    private AzureBlobStorageServiceImpl azureBlobStorageServiceImpl;
+
     // Guardar metadatos del archivo
     @PostMapping
     public ResponseEntity<ArchivoDto> createArchivo(@RequestBody ArchivoDto archivoDto) {
