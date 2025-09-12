@@ -106,6 +106,7 @@ public class ChatServiceImpl implements ChatService {
         if (hasFile) {
             validateFile(file);
             String storedFilename = fileStorageService.storeFile(file);
+            // La URL del adjunto será servida por FileController desde el blob
             message.setAttachmentUrl("/api/files/" + storedFilename);
             message.setAttachmentFilename(StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename())));
             message.setAttachmentMimeType(file.getContentType());
@@ -122,7 +123,6 @@ public class ChatServiceImpl implements ChatService {
             } else {
                 message.setContent("Archivo adjunto: " + message.getAttachmentFilename());
             }
-
         } else { // Solo mensaje de texto
             message.setContent(messageDto.getContent().trim());
             message.setMessageType(ChatMessage.MessageType.TEXT);

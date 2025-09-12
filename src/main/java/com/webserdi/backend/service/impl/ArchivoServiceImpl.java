@@ -12,6 +12,7 @@ import com.webserdi.backend.repository.CarpetaRepository;
 import com.webserdi.backend.repository.SitioRepository;
 import com.webserdi.backend.repository.UsuarioRepository;
 import com.webserdi.backend.service.ArchivoService;
+import com.webserdi.backend.service.FileStorageService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -32,6 +33,7 @@ public class ArchivoServiceImpl implements ArchivoService {
     private final CarpetaRepository carpetaRepository;
     private final UsuarioRepository usuarioRepository;
     private final SitioRepository sitioRepository;
+    private final FileStorageService fileStorageService;
 
 
     @Value("${file.upload-dir}")
@@ -42,12 +44,14 @@ public class ArchivoServiceImpl implements ArchivoService {
                               ArchivoMapper archivoMapper,
                               CarpetaRepository carpetaRepository,
                               UsuarioRepository usuarioRepository,
-                              SitioRepository sitioRepository) {
+                              SitioRepository sitioRepository,
+                              FileStorageService fileStorageService) {
         this.archivoRepository = archivoRepository;
         this.archivoMapper = archivoMapper;
         this.carpetaRepository = carpetaRepository;
         this.usuarioRepository = usuarioRepository;
         this.sitioRepository = sitioRepository;
+        this.fileStorageService = fileStorageService;
     }
 
 
@@ -82,23 +86,17 @@ public class ArchivoServiceImpl implements ArchivoService {
             String tipoArchivo = archivo.getContentType();
             Long tamañoArchivo = archivo.getSize();
 
-            // Subcarpeta según carpetaId
-            String subdirectorio = (carpetaId != null) ? "carpeta_" + carpetaId : "sin_carpeta";
-
-            // Ruta absoluta: ./uploads/carpeta_#
-            Path rutaCarpeta = Paths.get(baseUploadDir).toAbsolutePath().normalize().resolve(subdirectorio);
-            Files.createDirectories(rutaCarpeta);
-
-            // Ruta final del archivo
-            Path rutaArchivo = rutaCarpeta.resolve(nombreArchivo);
-            archivo.transferTo(rutaArchivo.toFile());
-
+            // Subir archivo al blob y obtener el nombre único
+            String uniqueFilename = fileStorageService.storeFile(archivo);
+            // URL del blob (puedes construirla usando endpoint y contenedor si lo necesitas)
+            String blobUrl = uniqueFilename;
 
             // Crear entidad
             Archivo entidad = new Archivo();
             entidad.setNombre(nombreArchivo);
             entidad.setTipo(tipoArchivo);
             entidad.setTamaño(tamañoArchivo);
+            entidad.setRuta(blobUrl); // Guardar la referencia al blob
 
             Usuario usuario = usuarioRepository.findById(usuarioId)
                     .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
@@ -108,23 +106,15 @@ public class ArchivoServiceImpl implements ArchivoService {
                         .orElseThrow(() -> new ResourceNotFoundException("Sitio no encontrado con id: " + sitioId));
                 entidad.setSitio(sitio);
             }
-
-
-            // Guardar la ruta relativa (para usarla luego al ver el archivo)
-            String rutaRelativa = Paths.get("uploads", subdirectorio, nombreArchivo).toString();
-            entidad.setRuta(rutaRelativa);
-
             if (carpetaId != null) {
                 Carpeta carpeta = carpetaRepository.findById(carpetaId)
                         .orElseThrow(() -> new ResourceNotFoundException("Carpeta no encontrada"));
                 entidad.setCarpeta(carpeta);
             }
-
             archivoRepository.save(entidad);
             return archivoMapper.toDto(entidad);
-
-        } catch (IOException e) {
-            throw new RuntimeException("Error al guardar el archivo: " + e.getMessage(), e);
+        } catch (Exception e) {
+            throw new RuntimeException("Error al guardar el archivo en blob: " + e.getMessage(), e);
         }
     }
 

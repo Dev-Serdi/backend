@@ -23,29 +23,25 @@ public class FileController {
     private final FileStorageService fileStorageService;
 
     @GetMapping("/{filename:.+}")
-    @PreAuthorize("isAuthenticated()") // Basic auth check, refine if needed based on who can access files
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Resource> downloadFile(@PathVariable String filename, HttpServletRequest request) {
-        // Load file as Resource
+        // Cargar archivo como Resource desde Azure Blob Storage
         Resource resource = fileStorageService.loadFileAsResource(filename);
 
-        // Try to determine file's content type
+        // Intentar determinar el tipo de contenido
         String contentType = null;
         try {
-            contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
-        } catch (IOException ex) {
-            logger.info("Could not determine file type for filename: {}", filename);
+            // Si es InputStreamResource (blob), no se puede usar getFile(), así que usar el nombre
+            contentType = request.getServletContext().getMimeType(filename);
+        } catch (Exception ex) {
+            logger.info("No se pudo determinar el tipo de archivo para: {}", filename);
         }
-
-        // Fallback to the default content type if type could not be determined
         if (contentType == null) {
             contentType = "application/octet-stream";
         }
-
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(contentType))
-                // Header to suggest download vs display (optional)
-                // .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
-                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"") // Suggest display inline
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + filename + "\"")
                 .body(resource);
     }
 }
