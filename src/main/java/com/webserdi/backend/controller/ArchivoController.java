@@ -103,7 +103,8 @@ public class ArchivoController {
         Archivo archivo = archivoRepository
                 .findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Archivo no encontrado"));
-        Resource recurso = azureBlobStorageServiceImpl.downloadFile(archivo.getNombre(), "blobdegestiondocumental");
+        // Usar el campo 'ruta' como nombre del blob para descargar
+        Resource recurso = azureBlobStorageServiceImpl.loadFileAsResource(archivo.getRuta());
         String contentType = archivo.getTipo();
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(contentType))

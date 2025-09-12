@@ -23,6 +23,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -86,17 +87,30 @@ public class ArchivoServiceImpl implements ArchivoService {
             String tipoArchivo = archivo.getContentType();
             Long tamañoArchivo = archivo.getSize();
 
-            // Subir archivo al blob y obtener el nombre único
-            String uniqueFilename = fileStorageService.storeFile(archivo);
-            // URL del blob (puedes construirla usando endpoint y contenedor si lo necesitas)
-            String blobUrl = uniqueFilename;
+            // --- Generar nombre de blob simulando carpeta ---
+            String carpetaPrefix = "sin_carpeta";
+            if (carpetaId != null) {
+                Carpeta carpeta = carpetaRepository.findById(carpetaId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Carpeta no encontrada"));
+                carpetaPrefix = carpeta.getNombre();
+            }
+            // Usar UUID para evitar colisiones y mantener el nombre original para referencia
+            String fileExtension = "";
+            int dotIndex = nombreArchivo.lastIndexOf('.');
+            if (dotIndex > 0) {
+                fileExtension = nombreArchivo.substring(dotIndex);
+            }
+            String uniqueBlobName = carpetaPrefix + "__" + UUID.randomUUID() + fileExtension;
+
+            // Subir archivo al blob con el nombre generado
+            String blobName = fileStorageService.storeFile(archivo, uniqueBlobName);
 
             // Crear entidad
             Archivo entidad = new Archivo();
             entidad.setNombre(nombreArchivo);
             entidad.setTipo(tipoArchivo);
             entidad.setTamaño(tamañoArchivo);
-            entidad.setRuta(blobUrl); // Guardar la referencia al blob
+            entidad.setRuta(blobName); // Guardar la referencia al blob (nombre del blob)
 
             Usuario usuario = usuarioRepository.findById(usuarioId)
                     .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));

@@ -73,6 +73,18 @@ public class AzureBlobStorageServiceImpl implements FileStorageService {
         }
     }
 
+z|    // Nuevo método para subir archivo con nombre personalizado (simulando carpeta)
+    public String storeFile(MultipartFile file, String blobName) {
+        try (InputStream inputStream = file.getInputStream()) {
+            BlobClient blobClient = blobContainerClient.getBlobClient(blobName);
+            blobClient.upload(inputStream, file.getSize(), true);
+            blobClient.setHttpHeaders(new BlobHttpHeaders().setContentType(file.getContentType()));
+            return blobName;
+        } catch (IOException e) {
+            throw new FileStorageException("No se pudo subir el archivo a Azure Blob Storage.", e);
+        }
+    }
+
     @Override
     public Resource loadFileAsResource(String filename) {
         BlobClient blobClient = blobContainerClient.getBlobClient(filename);
@@ -95,4 +107,3 @@ public class AzureBlobStorageServiceImpl implements FileStorageService {
         return new InputStreamResource(blobClient.openInputStream());
     }
 }
-
