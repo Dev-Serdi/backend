@@ -1,5 +1,6 @@
 package com.webserdi.backend.repository;
 
+import com.webserdi.backend.entity.Modulo;
 import com.webserdi.backend.entity.Usuario;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,4 +23,5 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
     Set<Usuario> findByRol_Nombre(String nombre);
 
+    Page<Usuario> findAllByModuloId(Long moduloId, Pageable pageable);
 }

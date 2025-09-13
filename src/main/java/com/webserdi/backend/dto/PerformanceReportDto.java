@@ -23,6 +23,7 @@ public class PerformanceReportDto {
     private Long ticketsCerrados;
     /** El número de tickets que están actualmente en un estado activo ("En-Proceso"). */
     private Long ticketsActivos;
+    private Long ticketsSinRespuesta;
     /** El tiempo promedio en horas desde la creación hasta el cierre de los tickets resueltos. Puede ser nulo si no hay tickets resueltos. */
     private Double avgResolutionTimeHoras;
 }

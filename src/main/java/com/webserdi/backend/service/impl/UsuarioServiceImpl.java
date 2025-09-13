@@ -161,7 +161,7 @@ public class UsuarioServiceImpl implements UsuarioService {
         } else {
             usuario.setDepartamento(null); // Asegurar que sea null si no se proporciona
         }
-        // Asignar Departamento (si se proporciona)
+        // Asignar Modulo (si se proporciona)
         if (dto.getModulo() != null && dto.getModulo().getId() != null) {
             Modulo modulo = moduloRepository.findById(dto.getModulo().getId())
                     .orElseThrow(() -> {
@@ -205,16 +205,19 @@ public class UsuarioServiceImpl implements UsuarioService {
      */
     @Override
     @Transactional(readOnly = true) // Buena práctica para operaciones de solo lectura
-    public Page<UsuarioDto> getAllUsuarios(Pageable pageable, String searchTerm) {
+    public Page<UsuarioDto> getAllUsuarios(Pageable pageable, String searchTerm, Long moduloId) {
         logger.debug("Obteniendo todos los usuarios.");
         Page<Usuario> usuarios;
-        if (searchTerm != null){
+        if (searchTerm != null && !searchTerm.isEmpty()){
             usuarios = usuarioRepository.findAllByNombreContainsIgnoreCaseOrApellidoContainsIgnoreCaseOrEmailContainsIgnoreCase(searchTerm ,searchTerm ,searchTerm, pageable);
+            return usuarios.map(usuarioMapper::mapToUsuarioDto);
+        }
+        if (moduloId > 0){
+            usuarios = usuarioRepository.findAllByModuloId(moduloId, pageable);
             return usuarios.map(usuarioMapper::mapToUsuarioDto);
         }
         usuarios = usuarioRepository.findAll(pageable);
         return usuarios.map(usuarioMapper::mapToUsuarioDto);
-
     }
 
     @Override
