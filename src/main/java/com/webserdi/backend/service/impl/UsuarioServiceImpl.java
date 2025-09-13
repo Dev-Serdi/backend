@@ -9,6 +9,7 @@ import com.webserdi.backend.mapper.PermisoMapper;
 import com.webserdi.backend.mapper.UsuarioMapper;
 import com.webserdi.backend.repository.*;
 import com.webserdi.backend.service.NotificationService;
+import com.webserdi.backend.service.PreferenciaUsuarioService;
 import com.webserdi.backend.service.UsuarioService;
 import lombok.RequiredArgsConstructor; // Usar para inyección de dependencias
 import org.slf4j.Logger;
