@@ -85,7 +85,7 @@ public class ArchivoServiceImpl implements ArchivoService {
         try {
             String nombreArchivo = archivo.getOriginalFilename();
             String tipoArchivo = archivo.getContentType();
-            Long tamañoArchivo = archivo.getSize();
+            Long tamanioArchivo = archivo.getSize();
 
             // --- Generar nombre de blob simulando carpeta ---
             String carpetaPrefix = "sin_carpeta";
@@ -109,7 +109,7 @@ public class ArchivoServiceImpl implements ArchivoService {
             Archivo entidad = new Archivo();
             entidad.setNombre(nombreArchivo);
             entidad.setTipo(tipoArchivo);
-            entidad.setTamaño(tamañoArchivo);
+            entidad.setTamaño(tamanioArchivo);
             entidad.setRuta(blobName); // Guardar la referencia al blob (nombre del blob)
 
             Usuario usuario = usuarioRepository.findById(usuarioId)

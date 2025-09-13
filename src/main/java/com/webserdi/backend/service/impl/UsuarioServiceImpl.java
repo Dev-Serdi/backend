@@ -45,6 +45,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     private final PasswordEncoder passwordEncoder;
     private final ModuloRepository moduloRepository;
     private final GestorNotificacionesImpl gestorNotificacionesImpl;
+    private final PreferenciaUsuarioService preferenciaUsuarioService; // Nueva dependencia
 
     // El UsuarioMapper es estático, no necesita inyección si se mantiene así.
 
@@ -92,6 +93,21 @@ public class UsuarioServiceImpl implements UsuarioService {
 
         Usuario savedUsuario = usuarioRepository.save(usuario);
         logger.info("Usuario creado exitosamente con ID: {}", savedUsuario.getId());
+
+        // Asignar preferencias de notificación por defecto usando PreferenciaUsuarioService
+        Set<String> preferenciasPorDefecto = new HashSet<>(Arrays.asList(
+            "NUEVO_MENSAJE_EN_TICKET",
+            "NUEVO_TICKET_ASIGNADO",
+            "CAMBIO_ESTADO_TICKET",
+            "TICKET_MODIFICADO",
+            "REASIGNACION_USUARIO_TICKET",
+            "REASIGNACION_DEPARTAMENTO_TICKET",
+            "TICKET_NO_AUTORIZADO",
+            "PERFIL_MODIFICADO",
+            "NUEVO_TICKET_CREADO",
+            "FECHA_COMPROMISO_ASIGNADA"
+        ));
+        preferenciaUsuarioService.updatePreferencias(savedUsuario.getEmail(), preferenciasPorDefecto);
 
         gestorNotificacionesImpl.dispatch(new EventoNotificacionServiceImpl(TipoNotificacion.NUEVO_USUARIO_REGISTRADO, savedUsuario),savedUsuario,null);
 
@@ -400,3 +416,4 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
 
 }
+
