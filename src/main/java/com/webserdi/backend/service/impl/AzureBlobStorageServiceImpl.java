@@ -62,7 +62,7 @@ public class AzureBlobStorageServiceImpl implements FileStorageService {
         }
     }
 
-    // Nuevo método para subir archivo con nombre personalizado (simulando carpeta)
+    // Nuevo metodo para subir archivo con nombre personalizado (simulando carpeta)
     public String storeFile(MultipartFile file, String blobName) {
         try (InputStream inputStream = file.getInputStream()) {
             BlobClient blobClient = blobContainerClient.getBlobClient(blobName);
