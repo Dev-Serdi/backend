@@ -12,7 +12,7 @@ public interface UsuarioService {
 
     UsuarioDto createUsuario(UsuarioDto usuarioDto);
     UsuarioDto getUsuarioById(Long usuarioId);
-    Page<UsuarioDto> getAllUsuarios(Pageable pageable,String searchTerm);
+    Page<UsuarioDto> getAllUsuarios(Pageable pageable,String searchTerm, Long moduloId);
     List<PermisoDto> getAllPermisos(String email);
     UsuarioDto updateUsuario(Long usuarioId,UsuarioDto usuarioDto);
     void deleteUsuario(Long usuarioId);

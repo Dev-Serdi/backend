@@ -1,3 +1,4 @@
+
 package com.webserdi.backend.repository.projection;
 
 /**
@@ -10,5 +11,6 @@ public interface PerformanceProjection {
     Long getTotalTickets();
     Long getTicketsCerrados();
     Long getTicketsActivos();
+    Long getTicketsSinRespuesta();
     Double getAvgResolutionTimeHoras();
 }

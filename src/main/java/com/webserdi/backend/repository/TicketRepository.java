@@ -49,14 +49,13 @@ public interface TicketRepository extends JpaRepository<Ticket, Long>, JpaSpecif
             "COALESCE(COUNT(t.id), 0L) AS totalTickets, " +
             "COALESCE(SUM(CASE WHEN t.fechaCierre IS NOT NULL THEN 1 ELSE 0 END), 0L) AS ticketsCerrados, " +
             "COALESCE(SUM(CASE WHEN t.fechaCierre IS NULL THEN 1 ELSE 0 END), 0L) AS ticketsActivos, " +
-            // AVG ahora solo necesita verificar que el ticket esté cerrado, ya que el filtro de fecha está en el WHERE
+            "COALESCE(SUM(CASE WHEN t.fechaRespuesta IS NULL THEN 1 ELSE 0 END), 0L) AS ticketsSinRespuesta, " +
             "AVG(CASE " +
             "    WHEN t.fechaCierre IS NOT NULL " +
             "    THEN CAST(TIMESTAMPDIFF(MINUTE, t.fechaCreacion, t.fechaCierre) AS double) / 60.0 " +
             "    ELSE NULL " +
             "END) AS avgResolutionTimeHoras " +
             "FROM Ticket t JOIN t.departamento d " +
-            // AÑADIDO: Filtro para incluir solo tickets creados en los últimos 7 días
             "WHERE t.isTrashed = false AND t.fechaCreacion >= :sevenDaysAgo " +
             "GROUP BY d.nombre, d.id " +
             "ORDER BY d.nombre")
@@ -74,7 +73,7 @@ public interface TicketRepository extends JpaRepository<Ticket, Long>, JpaSpecif
             "COALESCE(COUNT(t.id), 0L) AS totalTickets, " +
             "COALESCE(SUM(CASE WHEN t.fechaCierre IS NOT NULL THEN 1 ELSE 0 END), 0L) AS ticketsCerrados, " +
             "COALESCE(SUM(CASE WHEN t.fechaCierre IS NULL THEN 1 ELSE 0 END), 0L) AS ticketsActivos, " +
-            // La misma simplificación para el AVG
+            "COALESCE(SUM(CASE WHEN t.fechaRespuesta IS NULL THEN 1 ELSE 0 END), 0L) AS ticketsSinRespuesta, " +
             "AVG(CASE " +
             "    WHEN t.fechaCierre IS NOT NULL " +
             "    THEN CAST(TIMESTAMPDIFF(MINUTE, t.fechaCreacion, t.fechaCierre) AS double) / 60.0 " +
@@ -84,7 +83,6 @@ public interface TicketRepository extends JpaRepository<Ticket, Long>, JpaSpecif
             "JOIN t.usuarioAsignado u " +
             "JOIN u.departamento d " +
             "JOIN u.modulo m " +
-            // AÑADIDO: El mismo filtro de fecha para los tickets
             "WHERE m.id = :moduloId AND t.isTrashed = false AND t.usuarioAsignado IS NOT NULL AND t.fechaCreacion >= :sevenDaysAgo " +
             "GROUP BY u.id, u.nombre, u.apellido, d.nombre, d.id " +
             "ORDER BY groupName")

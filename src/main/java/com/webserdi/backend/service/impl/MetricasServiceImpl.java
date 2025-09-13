@@ -44,6 +44,7 @@ public class MetricasServiceImpl implements MetricasService {
                 projection.getTotalTickets(),
                 projection.getTicketsCerrados(),
                 projection.getTicketsActivos(),
+                projection.getTicketsSinRespuesta(),
                 projection.getAvgResolutionTimeHoras()
         );
     }

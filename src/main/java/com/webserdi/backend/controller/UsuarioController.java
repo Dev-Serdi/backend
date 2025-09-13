@@ -60,8 +60,9 @@ public class UsuarioController {
     @GetMapping
     public ResponseEntity<Page<UsuarioDto>> getAllUsuarios(
             @PageableDefault(size = 8, sort = "nombre") Pageable pageable,
-            @RequestParam(required = false) String searchTerm) {
-        Page<UsuarioDto> usuarios = usuarioService.getAllUsuarios(pageable,searchTerm);
+            @RequestParam(required = false) String searchTerm,
+            @RequestParam(required = false) Long moduloId) {
+        Page<UsuarioDto> usuarios = usuarioService.getAllUsuarios(pageable,searchTerm,moduloId);
         return ResponseEntity.ok(usuarios);
     }
     @GetMapping("/departamento/{id}")
