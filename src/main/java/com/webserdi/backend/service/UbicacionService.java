@@ -9,4 +9,8 @@ import java.util.List;
 public interface UbicacionService {
     UbicacionDto createUbicacion(UbicacionDto dto);
     List<UbicacionDto> getUbicaciones();
+
+    UbicacionDto getUbicacionById(Long id);
+
+    UbicacionDto updateUbicacion(Long id, UbicacionDto dto);
 }
